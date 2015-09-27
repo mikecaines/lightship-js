@@ -8,4 +8,4 @@ JS aspects of Lightship MVC framework.
 
 ## Related Projects
 
-* [Batten](https://github.com/mikecaines/batten-js/wiki/About)
+* [Batten](https://github.com/mikecaines/batten-js/)
