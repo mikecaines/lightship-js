@@ -13,6 +13,6 @@
 	],
 
 	"require": {
-		"mikecaines/ok-kit-js": "0.1.x"
+		"mikecaines/ok-kit-js": "dev-master"
 	}
 }
