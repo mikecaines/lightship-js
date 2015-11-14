@@ -1,3 +1,18 @@
 {
-  "name": "mikecaines/lightship-js"
+	"name": "solarfield/lightship-js",
+
+	"support": {
+		"source": "https://github.com/solarfield/lightship-js.git"
+	},
+
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/mikecaines/ok-kit-js.git"
+		}
+	],
+
+	"require": {
+		"mikecaines/ok-kit-js": "0.1.x"
+	}
 }
