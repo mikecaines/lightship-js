@@ -1,17 +1,21 @@
-"use strict";
+define(
+	'solarfield/lightship-js/src/Solarfield/Lightship/Environment',
+	[
+		'solarfield/ok-kit-js/src/Solarfield/Ok/ok',
+		'solarfield/batten-js/src/Solarfield/Batten/Environment'
+	],
+	function (Ok, BattenEnvironment) {
+		"use strict";
 
-/**
- * @namespace Solarfield.Lightship
- */
-Solarfield.Ok.defineNamespace('Solarfield.Lightship');
+		/**
+		 * @class Solarfield.Lightship.Environment
+		 * @abstract
+		 * @extends Solarfield.Batten.Environment
+		 * @constructor
+		 */
+		var Environment = Ok.extendObject(BattenEnvironment);
 
-
-
-
-/**
- * @class Solarfield.Lightship.Environment
- * @abstract
- * @extends Solarfield.Batten.Environment
- * @constructor
- */
-Solarfield.Lightship.Environment = Solarfield.Ok.extendObject(Solarfield.Batten.Environment);
+		Ok.defineNamespace('Solarfield.Lightship');
+		return Environment;
+	}
+);
