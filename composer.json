@@ -9,10 +9,16 @@
 		{
 			"type": "vcs",
 			"url": "https://github.com/solarfield/ok-kit-js.git"
+		},
+
+		{
+			"type": "vcs",
+			"url": "https://github.com/systemjs/systemjs.git"
 		}
 	],
 
 	"require": {
-		"solarfield/ok-kit-js": "dev-master"
+		"solarfield/ok-kit-js": "dev-master",
+		"systemjs/systemjs": "^0.19"
 	}
 }
