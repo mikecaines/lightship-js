@@ -17,6 +17,7 @@ define(
 				Controller.super.call(this, aCode, aOptions);
 
 				this._lc_queuedPlugins = Ok.objectGet(aOptions, 'pluginRegistrations');
+				this._lc_queuedPendingData = Ok.objectGet(aOptions, 'pendingData');
 			},
 
 			resolvePlugins: function () {
@@ -36,16 +37,26 @@ define(
 			hookup: function () {
 				Controller.super.prototype.hookup.call(this);
 
-				var pendingData, messages, i;
+				var model = this.getModel();
+				var messages, i;
+
+				//store any pending data
+				model.set('app.pendingData', this._lc_queuedPendingData);
 
 				if (self.console) {
-					pendingData = new Ok.HashMap(this.getModel().get('app.pendingData'));
-					messages = pendingData.getAsArray('app.standardOutput.messages');
+					messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
 
 					for (i = 0; i < messages.length; i++) {
 						console.log(messages[i].message);
 					}
 				}
+			},
+
+			doTask: function () {
+				Controller.super.prototype.doTask.apply(this, arguments);
+
+				//clear any pending data, as it should always be handled in hookup()
+				this.getModel().set('app.pendingData', null);
 			}
 		});
 
