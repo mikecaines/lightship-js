@@ -55,8 +55,22 @@ define(
 			doTask: function () {
 				Controller.super.prototype.doTask.apply(this, arguments);
 
+				if (this.hasEventListeners('before-do-task')) {
+					this.dispatchEvent({
+						type: 'before-do-task',
+						target: this
+					});
+				}
+
 				//clear any pending data, as it should always be handled in hookup()
 				this.getModel().set('app.pendingData', null);
+
+				if (this.hasEventListeners('do-task')) {
+					this.dispatchEvent({
+						type: 'do-task',
+						target: this
+					});
+				}
 			}
 		});
 
