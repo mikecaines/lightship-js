@@ -50,6 +50,13 @@ define(
 						console.log(messages[i].message);
 					}
 				}
+
+				if (this.hasEventListeners('hookup')) {
+					this.dispatchEvent({
+						type: 'hookup',
+						target: this
+					});
+				}
 			},
 
 			doTask: function () {
