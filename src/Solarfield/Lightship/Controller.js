@@ -1,10 +1,11 @@
 define(
 	'solarfield/lightship-js/src/Solarfield/Lightship/Controller',
 	[
+		'app/App/Environment',
 		'solarfield/batten-js/src/Solarfield/Batten/Controller',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ok'
 	],
-	function (BattenController, Ok) {
+	function (Environment, BattenController, Ok) {
 		"use strict";
 
 		/**
@@ -43,12 +44,9 @@ define(
 				//store any pending data
 				model.set('app.pendingData', this._lc_queuedPendingData);
 
-				if (self.console) {
-					messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
-
-					for (i = 0; i < messages.length; i++) {
-						console.log(messages[i].message);
-					}
+				messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
+				for (i = 0; i < messages.length; i++) {
+					Environment.getLogger().info(messages[i].message);
 				}
 
 				if (this.hasEventListeners('hookup')) {
