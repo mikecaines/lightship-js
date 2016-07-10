@@ -1,10 +1,10 @@
 define(
 	'solarfield/lightship-js/src/Solarfield/Lightship/Environment',
 	[
-		'solarfield/ok-kit-js/src/Solarfield/Ok/ok',
+		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
 		'solarfield/batten-js/src/Solarfield/Batten/Environment'
 	],
-	function (Ok, BattenEnvironment) {
+	function (ObjectUtils, BattenEnvironment) {
 		"use strict";
 
 		/**
@@ -13,9 +13,9 @@ define(
 		 * @extends Solarfield.Batten.Environment
 		 * @constructor
 		 */
-		var Environment = Ok.extendObject(BattenEnvironment);
+		var Environment = ObjectUtils.extend(BattenEnvironment);
 
-		Ok.defineNamespace('Solarfield.Lightship');
+		ObjectUtils.defineNamespace('Solarfield.Lightship');
 		return Environment;
 	}
 );

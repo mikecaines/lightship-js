@@ -3,9 +3,10 @@ define(
 	[
 		'app/App/Environment',
 		'solarfield/batten-js/src/Solarfield/Batten/Controller',
-		'solarfield/ok-kit-js/src/Solarfield/Ok/ok'
+		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
+		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils'
 	],
-	function (Environment, BattenController, Ok) {
+	function (Environment, BattenController, ObjectUtils, StructUtils) {
 		"use strict";
 
 		/**
@@ -13,12 +14,12 @@ define(
 		 * @extends Solarfield.Batten.Controller
 		 * @constructor
 		 */
-		var Controller = Ok.extendObject(BattenController, {
+		var Controller = ObjectUtils.extend(BattenController, {
 			constructor: function (aCode, aOptions) {
 				Controller.super.call(this, aCode, aOptions);
 
-				this._lc_queuedPlugins = Ok.objectGet(aOptions, 'pluginRegistrations');
-				this._lc_queuedPendingData = Ok.objectGet(aOptions, 'pendingData');
+				this._lc_queuedPlugins = StructUtils.get(aOptions, 'pluginRegistrations');
+				this._lc_queuedPendingData = StructUtils.get(aOptions, 'pendingData');
 			},
 
 			resolvePlugins: function () {
@@ -79,7 +80,7 @@ define(
 			}
 		});
 
-		Ok.defineNamespace('Solarfield.Lightship');
+		ObjectUtils.defineNamespace('Solarfield.Lightship');
 		return Solarfield.Lightship.Controller = Controller;
 	}
 );
