@@ -2,9 +2,9 @@ define(
 	'solarfield/lightship-js/src/Solarfield/Lightship/ControllerPlugin',
 	[
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
-		'solarfield/batten-js/src/Solarfield/Batten/Controller'
+		'solarfield/batten-js/src/Solarfield/Batten/ControllerPlugin'
 	],
-	function (ObjectUtils, BattenController) {
+	function (ObjectUtils, BattenControllerPlugin) {
 		"use strict";
 
 		/**
@@ -12,7 +12,7 @@ define(
 		 * @extends Solarfield.Batten.ControllerPlugin
 		 * @constructor
 		 */
-		var ControllerPlugin = ObjectUtils.extend(BattenController, {
+		var ControllerPlugin = ObjectUtils.extend(BattenControllerPlugin, {
 
 		});
 
