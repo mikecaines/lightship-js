@@ -4,9 +4,11 @@ define(
 		'app/App/Environment',
 		'solarfield/batten-js/src/Solarfield/Batten/Controller',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
-		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils'
+		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils',
+		'solarfield/ok-kit-js/src/Solarfield/Ok/ExtendableEventManager',
+		'solarfield/ok-kit-js/src/Solarfield/Ok/ExtendableEvent'
 	],
-	function (Environment, BattenController, ObjectUtils, StructUtils) {
+	function (Environment, BattenController, ObjectUtils, StructUtils, ExtendableEventManager, ExtendableEvent) {
 		"use strict";
 
 		/**
@@ -37,25 +39,30 @@ define(
 			},
 
 			hookup: function () {
-				Controller.super.prototype.hookup.call(this);
+				return Controller.super.prototype.hookup.call(this)
+				.then(function () {
+					var model = this.getModel();
+					var messages, i;
 
-				var model = this.getModel();
-				var messages, i;
+					//store any pending data
+					model.set('app.pendingData', this._lc_queuedPendingData);
 
-				//store any pending data
-				model.set('app.pendingData', this._lc_queuedPendingData);
+					messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
+					for (i = 0; i < messages.length; i++) {
+						Environment.getLogger().info(messages[i].message);
+					}
 
-				messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
-				for (i = 0; i < messages.length; i++) {
-					Environment.getLogger().info(messages[i].message);
-				}
-
-				if (this.hasEventListeners('hookup')) {
-					this.dispatchEvent({
-						type: 'hookup',
-						target: this
-					});
-				}
+					//dispatch a hookup event
+					return this.hasEventListeners('hookup')
+						? this.dispatchExtendableEvent(new ExtendableEventManager(function (aWaitQueue) {
+								return new ExtendableEvent({
+									type: 'hookup',
+									target: this
+								}, aWaitQueue);
+							}.bind(this)))
+						: Promise.resolve()
+					;
+				}.bind(this));
 			},
 
 			doTask: function () {
