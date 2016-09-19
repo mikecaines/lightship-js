@@ -33,7 +33,7 @@ define(
 					plugins = this.getPlugins();
 
 					for (i = 0; i < this._lc_queuedPlugins.length; i++) {
-						plugins.register(this._lc_queuedPlugins[i].componentCode, this._lc_queuedPlugins[i].installationCode);
+						plugins.register(this._lc_queuedPlugins[i].componentCode);
 					}
 				}
 			},
