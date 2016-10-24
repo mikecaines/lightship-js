@@ -7,11 +7,6 @@
 
 	"repositories": [
 		{
-			"type": "vcs",
-			"url": "https://github.com/solarfield/ok-kit-js.git"
-		},
-
-		{
 			"type": "package",
 			"package": {
 				"name": "systemjs/systemjs",
@@ -26,7 +21,7 @@
 	],
 
 	"require": {
-		"solarfield/ok-kit-js": "dev-master",
+		"solarfield/ok-kit-js": "^0.0",
 		"systemjs/systemjs": "^0.19"
 	}
 }
