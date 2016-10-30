@@ -14,6 +14,7 @@ define(
 		/**
 		 * @class Solarfield.Lightship.Controller
 		 * @extends Solarfield.Batten.Controller
+		 * @property {Solarfield.Batten.Controller} super
 		 * @constructor
 		 */
 		var Controller = ObjectUtils.extend(BattenController, {
