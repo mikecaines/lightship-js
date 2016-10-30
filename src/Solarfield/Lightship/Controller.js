@@ -66,6 +66,13 @@ define(
 				}.bind(this));
 			},
 
+			run: function () {
+				Controller.super.prototype.run.call(this);
+
+				//clear any pending data
+				this.getModel().set('app.pendingData', null);
+			},
+
 			doTask: function () {
 				Controller.super.prototype.doTask.apply(this, arguments);
 
@@ -75,9 +82,6 @@ define(
 						target: this
 					});
 				}
-
-				//clear any pending data, as it should always be handled in hookup()
-				this.getModel().set('app.pendingData', null);
 
 				if (this.hasEventListeners('do-task')) {
 					this.dispatchEvent({
