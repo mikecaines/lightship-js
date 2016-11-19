@@ -15,9 +15,47 @@ define(
 		 * @class Solarfield.Lightship.Controller
 		 * @extends Solarfield.Batten.Controller
 		 * @property {Solarfield.Batten.Controller} super
-		 * @constructor
 		 */
 		var Controller = ObjectUtils.extend(BattenController, {
+			/**
+			 * @protected
+			 * @param {Solarfield.Ok.ExtendableEvent} aEvt
+			 * @returns {Promise}
+			 */
+			onHookup: function (aEvt) {
+				return aEvt.waitUntil(Promise.resolve().then(function () {
+					var model = this.getModel();
+					var messages, i;
+
+					//store any pending data
+					model.set('app.pendingData', this._lc_queuedPendingData);
+
+					messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
+					for (i = 0; i < messages.length; i++) {
+						Environment.getLogger().info(messages[i].message);
+					}
+				}.bind(this)));
+			},
+
+			/**
+			 * @protected
+			 * @param {Event} aEvt
+			 */
+			onDoTask: function (aEvt) {
+
+			},
+
+			/**
+			 * @protected
+			 * @param {Event} aEvt
+			 */
+			onBeforeDoTask: function (aEvt) {
+
+			},
+
+			/**
+			 * @inheritDoc
+			 */
 			constructor: function (aCode, aOptions) {
 				Controller.super.call(this, aCode, aOptions);
 
@@ -42,27 +80,20 @@ define(
 			hookup: function () {
 				return Controller.super.prototype.hookup.call(this)
 				.then(function () {
-					var model = this.getModel();
-					var messages, i;
+					var event = new ExtendableEventManager(function (aWaitQueue) {
+						return new ExtendableEvent({
+							type: 'hookup',
+							target: this
+						}, aWaitQueue);
+					}.bind(this));
 
-					//store any pending data
-					model.set('app.pendingData', this._lc_queuedPendingData);
-
-					messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
-					for (i = 0; i < messages.length; i++) {
-						Environment.getLogger().info(messages[i].message);
-					}
-
-					//dispatch a hookup event
-					return this.hasEventListeners('hookup')
-						? this.dispatchExtendableEvent(new ExtendableEventManager(function (aWaitQueue) {
-								return new ExtendableEvent({
-									type: 'hookup',
-									target: this
-								}, aWaitQueue);
-							}.bind(this)))
-						: Promise.resolve()
-					;
+					return this.dispatchExtendableEvent(event, {
+						listener: this.onHookup,
+						breakOnError: true
+					})
+					.then(function () {
+						return this.dispatchExtendableEvent(event);
+					}.bind(this));
 				}.bind(this));
 			},
 
@@ -76,19 +107,29 @@ define(
 			doTask: function () {
 				Controller.super.prototype.doTask.apply(this, arguments);
 
-				if (this.hasEventListeners('before-do-task')) {
-					this.dispatchEvent({
-						type: 'before-do-task',
-						target: this
-					});
-				}
+				var event;
 
-				if (this.hasEventListeners('do-task')) {
-					this.dispatchEvent({
-						type: 'do-task',
-						target: this
-					});
-				}
+				event = {
+					type: 'before-do-task',
+					target: this
+				};
+
+				this.dispatchEvent(event, {
+					listener: this.onBeforeDoTask,
+					breakOnError: true
+				});
+
+				event = {
+					type: 'do-task',
+					target: this
+				};
+
+				this.dispatchEvent(event, {
+					listener: this.onDoTask,
+					breakOnError: true
+				});
+
+				this.dispatchEvent(event);
 			}
 		});
 
