@@ -46,14 +46,6 @@ define(
 			},
 
 			/**
-			 * @protected
-			 * @param {Event} aEvt
-			 */
-			onBeforeDoTask: function (aEvt) {
-
-			},
-
-			/**
 			 * @inheritDoc
 			 */
 			constructor: function (aCode, aOptions) {
@@ -107,19 +99,7 @@ define(
 			doTask: function () {
 				Controller.super.prototype.doTask.apply(this, arguments);
 
-				var event;
-
-				event = {
-					type: 'before-do-task',
-					target: this
-				};
-
-				this.dispatchEvent(event, {
-					listener: this.onBeforeDoTask,
-					breakOnError: true
-				});
-
-				event = {
+				var event = {
 					type: 'do-task',
 					target: this
 				};
