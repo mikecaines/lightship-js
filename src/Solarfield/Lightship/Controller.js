@@ -109,6 +109,27 @@ define(
 				this.dispatchEvent(event);
 			}
 		});
+		
+		Controller.bootstrap = function (aOptions) {
+			try {
+				const controller = this.boot(aOptions['bootInfo']);
+				
+				if (controller) {
+					controller.connect()
+					.then(function () {
+						controller.run();
+						return controller;
+					})
+					.catch(function (e) {
+						controller.handleException(e);
+					});
+				}
+			}
+			
+			catch (e) {
+				this.bail(e);
+			}
+		};
 
 		ObjectUtils.defineNamespace('Solarfield.Lightship');
 		return Solarfield.Lightship['Controller'] = Controller;
