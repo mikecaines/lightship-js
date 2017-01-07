@@ -16,7 +16,7 @@ define(
 		 * @extends Solarfield.Batten.Controller
 		 * @property {Solarfield.Batten.Controller} super
 		 */
-		var Controller = ObjectUtils.extend(BattenController, {
+		const Controller = ObjectUtils.extend(BattenController, {
 			/**
 			 * @protected
 			 * @param {Solarfield.Ok.ExtendableEvent} aEvt
@@ -24,14 +24,13 @@ define(
 			 */
 			onHookup: function (aEvt) {
 				return aEvt.waitUntil(Promise.resolve().then(function () {
-					var model = this.getModel();
-					var messages, i;
+					const model = this.getModel();
 
 					//store any pending data
 					model.set('app.pendingData', this._lc_queuedPendingData);
 
-					messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
-					for (i = 0; i < messages.length; i++) {
+					const messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
+					for (let i = 0; i < messages.length; i++) {
 						Environment.getLogger().info(messages[i].message);
 					}
 				}.bind(this)));
@@ -58,12 +57,10 @@ define(
 			resolvePlugins: function () {
 				Controller.super.prototype.resolvePlugins.call(this);
 
-				var i, plugins;
-
 				if (this._lc_queuedPlugins) {
-					plugins = this.getPlugins();
+					const plugins = this.getPlugins();
 
-					for (i = 0; i < this._lc_queuedPlugins.length; i++) {
+					for (let i = 0; i < this._lc_queuedPlugins.length; i++) {
 						plugins.register(this._lc_queuedPlugins[i].componentCode);
 					}
 				}
@@ -72,7 +69,7 @@ define(
 			hookup: function () {
 				return Controller.super.prototype.hookup.call(this)
 				.then(function () {
-					var event = new ExtendableEventManager(function (aWaitQueue) {
+					const event = new ExtendableEventManager(function (aWaitQueue) {
 						return new ExtendableEvent({
 							type: 'hookup',
 							target: this
@@ -99,7 +96,7 @@ define(
 			doTask: function () {
 				Controller.super.prototype.doTask.apply(this, arguments);
 
-				var event = {
+				const event = {
 					type: 'do-task',
 					target: this
 				};
@@ -114,6 +111,6 @@ define(
 		});
 
 		ObjectUtils.defineNamespace('Solarfield.Lightship');
-		return Solarfield.Lightship.Controller = Controller;
+		return Solarfield.Lightship['Controller'] = Controller;
 	}
 );
