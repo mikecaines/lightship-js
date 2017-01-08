@@ -115,6 +115,8 @@ define(
 				const controller = this.boot(aOptions['bootInfo']);
 				
 				if (controller) {
+					self.App.controller = controller;
+					
 					controller.connect()
 					.then(function () {
 						controller.run();
