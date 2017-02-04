@@ -25,16 +25,17 @@ define(
 		InputUtils.objectToQuery = function (aObject, aPrefix) {
 			let query = {};
 			let prefix = aPrefix != null ? ''+aPrefix : '';
+			let separator = '.';
 			
 			if (aObject) {
-				const object = StructUtils.flatten(aObject);
+				const object = StructUtils.flatten(aObject, separator);
 				
 				for (let k in object) {
 					let kk = k.split(/\./)
 						.map(function (v) {return StringUtils.camelToDash(v).toLowerCase()})
 						.join('.');
 					
-					if (prefix != '') kk = prefix + kk;
+					if (prefix != '') kk = prefix + separator + kk;
 					
 					query[kk] = object[k];
 				}
