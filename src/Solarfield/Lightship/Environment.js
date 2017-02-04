@@ -13,7 +13,7 @@ define(
 		 * @extends Solarfield.Batten.Environment
 		 * @constructor
 		 */
-		var Environment = ObjectUtils.extend(BattenEnvironment);
+		const Environment = ObjectUtils.extend(BattenEnvironment);
 
 		ObjectUtils.defineNamespace('Solarfield.Lightship');
 		return Environment;
