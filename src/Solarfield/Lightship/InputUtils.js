@@ -4,7 +4,6 @@
  */
 
 define(
-	'solarfield/lightship-js/src/Solarfield/Lightship/InputUtils',
 	[
 		'solarfield/ok-kit-js/src/Solarfield/Ok/StringUtils',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils'

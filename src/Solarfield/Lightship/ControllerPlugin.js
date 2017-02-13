@@ -1,5 +1,4 @@
 define(
-	'solarfield/lightship-js/src/Solarfield/Lightship/ControllerPlugin',
 	[
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
 		'solarfield/batten-js/src/Solarfield/Batten/ControllerPlugin'

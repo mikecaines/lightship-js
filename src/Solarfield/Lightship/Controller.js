@@ -1,5 +1,4 @@
 define(
-	'solarfield/lightship-js/src/Solarfield/Lightship/Controller',
 	[
 		'app/App/Environment',
 		'solarfield/batten-js/src/Solarfield/Batten/Controller',
