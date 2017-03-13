@@ -18,7 +18,7 @@ define(
 		/**
 		 * Normalizes a tree-like structure into something that Url::serializeQuery() will accept.
 		 * Changes camelCase keys to dash-case.
-		 * Keys ending in .<int> or [], will have the suffix removed, and will values will be added to the values array.
+		 * Items with keys ending in .<int> or [], will have the suffix removed, and will be merged into an array.
 		 * @param {Object} aObject Structure.
 		 * @param {string=} aPrefix A string to prepend to all keys. e.g. 'foo' becomes 'prefix.foo'
 		 * @returns {Object}
