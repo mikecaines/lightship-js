@@ -23,7 +23,7 @@ define(
 		 */
 		InputUtils.objectToQuery = function (aObject, aPrefix) {
 			let query = {};
-			let prefix = aPrefix != null ? ''+aPrefix : '';
+			let prefix = aPrefix != null ? StringUtils.camelToDash(aPrefix) : '';
 			let separator = '.';
 			
 			if (aObject) {
