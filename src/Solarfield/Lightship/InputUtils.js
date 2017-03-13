@@ -16,9 +16,11 @@ define(
 		};
 		
 		/**
-		 * Flattens the object, and converts camelCase keys to dash-case.
+		 * Normalizes a tree-like structure into something that Url::serializeQuery() will accept.
+		 * Changes camelCase keys to dash-case.
+		 * Keys ending in .<int> or [], will have the suffix removed, and will values will be added to the values array.
 		 * @param {Object} aObject Structure.
-		 * @param {string=} aPrefix A string to prepend to all keys.
+		 * @param {string=} aPrefix A string to prepend to all keys. e.g. 'foo' becomes 'prefix.foo'
 		 * @returns {Object}
 		 */
 		InputUtils.objectToQuery = function (aObject, aPrefix) {
@@ -32,11 +34,12 @@ define(
 				for (let k in object) {
 					let kk = k.split(/\./)
 						.map(function (v) {return StringUtils.camelToDash(v).toLowerCase()})
-						.join('.');
+						.join('.')
+						.replace(/\.(\[]|\d+)$/, '');
 					
 					if (prefix != '') kk = prefix + separator + kk;
 					
-					query[kk] = object[k];
+					StructUtils.pushSet(query, kk, object[k]);
 				}
 			}
 			
