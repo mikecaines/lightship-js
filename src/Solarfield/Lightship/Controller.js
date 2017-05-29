@@ -50,6 +50,7 @@ define(
 				Controller.super.call(this, aCode, aOptions);
 
 				this._lc_queuedPlugins = StructUtils.get(aOptions, 'pluginRegistrations');
+				this._lc_queuedOptions = StructUtils.get(aOptions, 'options');
 				this._lc_queuedPendingData = StructUtils.get(aOptions, 'pendingData');
 			},
 
@@ -61,6 +62,18 @@ define(
 
 					for (let i = 0; i < this._lc_queuedPlugins.length; i++) {
 						plugins.register(this._lc_queuedPlugins[i].componentCode);
+					}
+				}
+			},
+			
+			resolveOptions: function () {
+				Controller.super.prototype.resolveOptions.call(this);
+				
+				if (this._lc_queuedOptions) {
+					const options = this.getOptions();
+					
+					for (let k in this._lc_queuedOptions) {
+						options.add(k, this._lc_queuedOptions[k]);
 					}
 				}
 			},
