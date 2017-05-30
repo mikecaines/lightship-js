@@ -13,7 +13,7 @@ define(
 		 * @extends Solarfield.Batten.Environment
 		 * @constructor
 		 */
-		const Environment = ObjectUtils.extend(BattenEnvironment);
+		var Environment = ObjectUtils.extend(BattenEnvironment);
 
 		Environment.getBaseChain = function () {
 			if (!Environment._sle_baseChain) {

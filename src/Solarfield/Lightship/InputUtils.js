@@ -11,7 +11,7 @@ define(
 	function (StringUtils, StructUtils) {
 		"use strict";
 		
-		let InputUtils = function () {
+		var InputUtils = function () {
 			throw new Error("Class is abstract.");
 		};
 		
@@ -24,15 +24,16 @@ define(
 		 * @returns {Object}
 		 */
 		InputUtils.objectToQuery = function (aObject, aPrefix) {
-			let query = {};
-			let prefix = aPrefix != null ? StringUtils.camelToDash(aPrefix) : '';
-			let separator = '.';
+			var query = {};
+			var prefix = aPrefix != null ? StringUtils.camelToDash(aPrefix) : '';
+			var separator = '.';
+			var object, k, kk;
 			
 			if (aObject) {
-				const object = StructUtils.flatten(aObject, separator);
+				object = StructUtils.flatten(aObject, separator);
 				
-				for (let k in object) {
-					let kk = k.split(/\./)
+				for (k in object) {
+					kk = k.split(/\./)
 						.map(function (v) {return StringUtils.camelToDash(v).toLowerCase()})
 						.join('.')
 						.replace(/\.(\[]|\d+)$/, '');

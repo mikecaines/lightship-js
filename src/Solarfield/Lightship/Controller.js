@@ -15,7 +15,7 @@ define(
 		 * @extends Solarfield.Batten.Controller
 		 * @property {Solarfield.Batten.Controller} super
 		 */
-		const Controller = ObjectUtils.extend(BattenController, {
+		var Controller = ObjectUtils.extend(BattenController, {
 			/**
 			 * @protected
 			 * @param {Solarfield.Ok.ExtendableEvent} aEvt
@@ -23,13 +23,14 @@ define(
 			 */
 			onHookup: function (aEvt) {
 				return aEvt.waitUntil(Promise.resolve().then(function () {
-					const model = this.getModel();
+					var model = this.getModel();
+					var i;
 
 					//store any pending data
 					model.set('app.pendingData', this._lc_queuedPendingData);
 
-					const messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
-					for (let i = 0; i < messages.length; i++) {
+					var messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
+					for (i = 0; i < messages.length; i++) {
 						Environment.getLogger().info(messages[i].message);
 					}
 				}.bind(this)));
@@ -56,11 +57,13 @@ define(
 
 			resolvePlugins: function () {
 				Controller.super.prototype.resolvePlugins.call(this);
+				
+				var plugins, i;
 
 				if (this._lc_queuedPlugins) {
-					const plugins = this.getPlugins();
+					plugins = this.getPlugins();
 
-					for (let i = 0; i < this._lc_queuedPlugins.length; i++) {
+					for (i = 0; i < this._lc_queuedPlugins.length; i++) {
 						plugins.register(this._lc_queuedPlugins[i].componentCode);
 					}
 				}
@@ -69,10 +72,12 @@ define(
 			resolveOptions: function () {
 				Controller.super.prototype.resolveOptions.call(this);
 				
+				var options, k;
+				
 				if (this._lc_queuedOptions) {
-					const options = this.getOptions();
+					options = this.getOptions();
 					
-					for (let k in this._lc_queuedOptions) {
+					for (k in this._lc_queuedOptions) {
 						options.add(k, this._lc_queuedOptions[k]);
 					}
 				}
@@ -81,7 +86,7 @@ define(
 			hookup: function () {
 				return Controller.super.prototype.hookup.call(this)
 				.then(function () {
-					const event = new ExtendableEventManager(function (aWaitQueue) {
+					var event = new ExtendableEventManager(function (aWaitQueue) {
 						return new ExtendableEvent({
 							type: 'hookup',
 							target: this
@@ -108,7 +113,7 @@ define(
 			doTask: function () {
 				Controller.super.prototype.doTask.apply(this, arguments);
 
-				const event = {
+				var event = {
 					type: 'do-task',
 					target: this
 				};
@@ -124,7 +129,7 @@ define(
 		
 		Controller.bootstrap = function (aOptions) {
 			try {
-				const controller = this.boot(aOptions['bootInfo']);
+				var controller = this.boot(aOptions['bootInfo']);
 				
 				if (controller) {
 					self.App.controller = controller;
