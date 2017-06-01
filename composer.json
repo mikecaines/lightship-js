@@ -21,7 +21,7 @@
 	],
 
 	"require": {
-		"solarfield/batten-js": "^0.1",
+		"solarfield/batten-js": "^0.4",
 		"solarfield/ok-kit-js": "^0.1"
 	}
 }
