@@ -19,9 +19,20 @@ define(
 			if (!Environment._sle_baseChain) {
 				Environment._sle_baseChain = BattenEnvironment.getBaseChain(this);
 				
+				
+				//adjust some known chain links, to have the lightship-specific path property
+				
+				StructUtils.find(Environment._sle_baseChain, 'id', 'solarfield/batten-js')
+					.path = 'solarfield/batten-js/src/Solarfield/Batten';
+				
+				StructUtils.find(Environment._sle_baseChain, 'id', 'app')
+					.path = 'app/App';
+				
+				
+				//add lightship to the path, immediately after app in priority
 				Environment._sle_baseChain.splice(StructUtils.search(Environment._sle_baseChain, 'id', 'app'), 0, {
 					id: 'solarfield/lightship-js',
-					namespace: 'Solarfield.Lightship'
+					path: 'solarfield/lightship-js/src/Solarfield/Lightship',
 				});
 			}
 			

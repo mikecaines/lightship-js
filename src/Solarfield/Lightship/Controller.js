@@ -5,9 +5,12 @@ define(
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ExtendableEventManager',
-		'solarfield/ok-kit-js/src/Solarfield/Ok/ExtendableEvent'
+		'solarfield/ok-kit-js/src/Solarfield/Ok/ExtendableEvent',
+		'solarfield/lightship-js/src/Solarfield/Lightship/ComponentResolver',
 	],
-	function (Environment, BattenController, ObjectUtils, StructUtils, ExtendableEventManager, ExtendableEvent) {
+	function (
+		Environment, BattenController, ObjectUtils, StructUtils, ExtendableEventManager, ExtendableEvent, ComponentResolver
+	) {
 		"use strict";
 
 		/**
@@ -126,6 +129,22 @@ define(
 				this.dispatchEvent(event);
 			}
 		});
+		
+		/**
+		 * @return {Solarfield.Lightship.ComponentResolver}
+		 */
+		Controller.createComponentResolver = function () {
+			return new ComponentResolver(SystemJS);
+		};
+		
+		Controller.getChain = function (aModuleCode) {
+			var chain = BattenController.getChain(aModuleCode).slice(); //copy
+			
+			//adjust the known module chain link, to have the lightship-specific path property
+			StructUtils.find(chain, 'id', 'module').path = 'app/App/Modules/' + aModuleCode;
+			
+			return chain;
+		};
 		
 		Controller.bootstrap = function (aOptions) {
 			try {
