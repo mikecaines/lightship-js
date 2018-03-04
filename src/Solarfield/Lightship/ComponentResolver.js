@@ -55,7 +55,6 @@ define(
 			},
 		});
 		
-		ObjectUtils.defineNamespace('Solarfield.Lightship');
 		return ComponentResolver;
 	}
 );

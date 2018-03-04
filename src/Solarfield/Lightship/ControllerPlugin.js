@@ -15,7 +15,6 @@ define(
 
 		});
 
-		ObjectUtils.defineNamespace('Solarfield.Lightship');
-		return Solarfield.Lightship.ControllerPlugin = ControllerPlugin;
+		return ControllerPlugin;
 	}
 );

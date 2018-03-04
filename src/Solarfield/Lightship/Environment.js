@@ -39,7 +39,6 @@ define(
 			return Environment._sle_baseChain.slice();
 		};
 		
-		ObjectUtils.defineNamespace('Solarfield.Lightship');
 		return Environment;
 	}
 );

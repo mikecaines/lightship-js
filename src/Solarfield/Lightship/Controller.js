@@ -169,7 +169,6 @@ define(
 			}
 		};
 
-		ObjectUtils.defineNamespace('Solarfield.Lightship');
-		return Solarfield.Lightship['Controller'] = Controller;
+		return Controller;
 	}
 );
