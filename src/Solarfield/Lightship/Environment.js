@@ -2,43 +2,100 @@ define(
 	[
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils',
-		'solarfield/batten-js/src/Solarfield/Batten/Environment'
+		'solarfield/lightship-js/src/Solarfield/Lightship/Options',
+		'solarfield/lightship-js/src/Solarfield/Lightship/Logger',
 	],
-	function (ObjectUtils, StructUtils, BattenEnvironment) {
+	function (ObjectUtils, StructUtils, Options, Logger) {
 		"use strict";
 
 		/**
 		 * @class Solarfield.Lightship.Environment
 		 * @abstract
-		 * @extends Solarfield.Batten.Environment
 		 * @constructor
 		 */
-		var Environment = ObjectUtils.extend(BattenEnvironment);
-
+		var Environment = function () {
+			throw Error("Class is abstract.");
+		};
+		
+		/** @static */ Environment._sle_baseChain = [];
+		/** @static */ Environment._sle_vars = null;
+		/** @static */ Environment._sle_logger = null;
+		
+		/**
+		 * @static
+		 * @return {ChainLink[]}
+		 */
 		Environment.getBaseChain = function () {
-			if (!Environment._sle_baseChain) {
-				Environment._sle_baseChain = BattenEnvironment.getBaseChain(this);
-				
-				
-				//adjust some known chain links, to have the lightship-specific path property
-				
-				StructUtils.find(Environment._sle_baseChain, 'id', 'solarfield/batten-js')
-					.path = 'solarfield/batten-js/src/Solarfield/Batten';
-				
-				StructUtils.find(Environment._sle_baseChain, 'id', 'app')
-					.path = 'app/App';
-				
-				
-				//add lightship to the path, immediately after app in priority
-				Environment._sle_baseChain.splice(StructUtils.search(Environment._sle_baseChain, 'id', 'app'), 0, {
-					id: 'solarfield/lightship-js',
-					path: 'solarfield/lightship-js/src/Solarfield/Lightship',
+			return Environment._sle_baseChain.slice();
+		};
+		
+		/**
+		 * @static
+		 * @return {Options}
+		 */
+		Environment.getVars = function () {
+			if (!Environment._sle_vars) {
+				Environment._sle_vars = new Options({
+					readOnly:true
 				});
 			}
 			
-			return Environment._sle_baseChain.slice();
+			return Environment._sle_vars;
+		};
+		
+		/**
+		 * @static
+		 * @return {Logger}
+		 */
+		Environment.getLogger = function () {
+			if (!Environment._sle_logger) {
+				Environment._sle_logger = new Logger();
+			}
+			
+			return Environment._sle_logger;
+		};
+		
+		/**
+		 * @static
+		 * @param {{
+		 *  debug: bool,
+		 *  vars: {}
+		 * }} aOptions
+		 */
+		Environment.init = function (aOptions) {
+			var options = StructUtils.assign({
+				debug: false,
+				vars: {}
+			}, aOptions);
+			
+			if (!self.App) self.App = {};
+			
+			self.App.DEBUG = options.debug == true;
+			
+			//prepend lightship-js (it should always be low-level, even if init() is called late)
+			Environment._sle_baseChain.unshift({
+				id: 'solarfield/lightship-js',
+				path: 'solarfield/lightship-js/src/Solarfield/Lightship',
+			});
+			
+			//append app
+			Environment._sle_baseChain.push({
+				id: 'app',
+				path: 'app/App',
+			});
+			
+			var vars = this.getVars();
+			Object.keys(options.vars).forEach(function (k) {
+				vars.set(k, options.vars[k]);
+			});
 		};
 		
 		return Environment;
 	}
 );
+
+/**
+ * @typedef {Object} ChainLink
+ * @property {string} id - Unique identifier for this link. Usually a string in the form of "vendor/package".
+ * @property {string} path - JS module path to directory containing components. e.g. "vendor/package/src/Foo/Bar"
+ */
