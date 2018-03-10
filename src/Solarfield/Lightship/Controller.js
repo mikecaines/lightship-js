@@ -31,6 +31,7 @@ define(
 
 					//store any pending data
 					model.set('app.pendingData', this._lc_queuedPendingData);
+					this._lc_queuedPendingData = null;
 
 					var messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
 					for (i = 0; i < messages.length; i++) {
@@ -69,6 +70,8 @@ define(
 					for (i = 0; i < this._lc_queuedPlugins.length; i++) {
 						plugins.register(this._lc_queuedPlugins[i].componentCode);
 					}
+					
+					this._lc_queuedPlugins = null;
 				}
 			},
 			
@@ -83,6 +86,8 @@ define(
 					for (k in this._lc_queuedOptions) {
 						options.add(k, this._lc_queuedOptions[k]);
 					}
+					
+					this._lc_queuedOptions = null;
 				}
 			},
 
