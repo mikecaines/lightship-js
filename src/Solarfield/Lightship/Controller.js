@@ -11,10 +11,12 @@ define(
 		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ExtendableEventManager',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ExtendableEvent',
+		'solarfield/ok-kit-js/src/Solarfield/Ok/Conduit',
+		'solarfield/ok-kit-js/src/Solarfield/Ok/HttpLoaderResult',
 	],
 	function (
 		Environment, ObjectUtils, StringUtils, ComponentResolver, ControllerPlugins, EvtTarget, Model, Options,
-		StructUtils, ExtendableEventManager, ExtendableEvent
+		StructUtils, ExtendableEventManager, ExtendableEvent, Conduit, HttpLoaderResult
 	) {
 		"use strict";
 		
@@ -33,6 +35,9 @@ define(
 			this._slc_queuedPlugins = StructUtils.get(aOptions, 'pluginRegistrations');
 			this._slc_queuedOptions = StructUtils.get(aOptions, 'options');
 			this._slc_queuedPendingData = StructUtils.get(aOptions, 'pendingData');
+			this._slc_mainConduit = null;
+			
+			this.handleConduitData = this.handleConduitData.bind(this);
 		};
 		
 		/**
@@ -205,16 +210,10 @@ define(
 		Controller.prototype.onHookup = function (aEvt) {
 			return aEvt.waitUntil(Promise.resolve().then(function () {
 				var model = this.getModel();
-				var i;
 				
 				//store any pending data
 				model.set('app.pendingData', this._slc_queuedPendingData);
 				this._slc_queuedPendingData = null;
-				
-				var messages = this.getModel().getAsArray('app.pendingData.app.standardOutput.messages');
-				for (i = 0; i < messages.length; i++) {
-					Environment.getLogger().info(messages[i].message);
-				}
 			}.bind(this)));
 		};
 		
@@ -223,7 +222,47 @@ define(
 		 * @param {Event} aEvt
 		 */
 		Controller.prototype.onDoTask = function (aEvt) {
+			//if there is pending data
+			if (this.getModel().get('app.pendingData')) {
+				//push it into the main conduit
+				this.getMainConduit().push(this.getModel().get('app.pendingData'))
+				
+				//if any error occurs, push the error onto the conduit as well (app can handle it, etc.)
+				.catch(function (e) {
+					this.getMainConduit().push(e);
+				}.bind(this))
+				
+				//finally
+				.then(function () {
+					//clear the pending data from the model
+					this.getModel().set('app.pendingData', null);
+				}.bind(this));
+			}
+		};
 		
+		/**
+		 * @protected
+		 * @param {ConduitDataEvent} aEvt
+		 */
+		Controller.prototype.handleConduitData = function (aEvt) {
+			var bundles; //will hold the raw JSON data, which we will check for known bundles
+			var t;
+			
+			if (aEvt.data instanceof HttpLoaderResult) {
+				if (aEvt.data.response.constructor === Object) {
+					bundles = aEvt.data.response;
+				}
+			}
+			
+			else if (aEvt.data.constructor === Object) {
+				bundles = aEvt.data;
+			}
+			
+			
+			if (bundles) {
+				t = StructUtils.get(bundles, 'app.standardOutput.messages');
+				if (t) this.processStandardOutputMessages(t);
+			}
 		};
 		
 		Controller.prototype.addEventListener = function (aEventType, aListener) {
@@ -298,9 +337,6 @@ define(
 		
 		Controller.prototype.run = function () {
 			this.doTask();
-			
-			//clear any pending data
-			this.getModel().set('app.pendingData', null);
 		};
 		
 		Controller.prototype.doTask = function () {
@@ -331,7 +367,34 @@ define(
 				exception: aEx
 			});
 		};
-
+		
+		Controller.prototype.getMainConduit = function () {
+			if (!this._slc_mainConduit) {
+				this._slc_mainConduit = new Conduit({
+					name: 'app.main',
+				});
+				
+				this._slc_mainConduit.addEventListener('data', this.handleConduitData);
+			}
+			
+			return this._slc_mainConduit;
+		};
+		
+		/**
+		 * @param {Object[]} aMessages
+		 * @param {string} aMessages[].message - Text of the message.
+		 * @param {string} aMessages[].level - Uppercase name of a level defined by RFC 5424.
+		 * @param {Object} aMessages[].context - Additional context information.
+		 */
+		Controller.prototype.processStandardOutputMessages = function (aMessages) {
+			var messages = aMessages||[];
+			var i;
+			
+			for (i = 0; i < messages.length; i++) {
+				Environment.getLogger().log(messages[i].level, messages[i].message, messages[i].context);
+			}
+		};
+		
 		return Controller;
 	}
 );
