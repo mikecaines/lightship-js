@@ -1,8 +1,9 @@
 define(
 	[
-		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils'
+		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
+		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils',
 	],
-	function (ObjectUtils) {
+	function (ObjectUtils, StructUtils) {
 		"use strict";
 		
 		/**
@@ -16,16 +17,35 @@ define(
 				var level = (''+aLevel).toUpperCase();
 				var funcName, funcArgs;
 				
-				if (level in this._sol_levels) {
-					funcName = this._sol_levels[level];
+				
+				//if level is known
+				if (level in Logger._sol_levels) {
+					funcName = Logger._sol_levels[level];
 					
 					funcArgs = [aMessage];
 					if (aContext !== undefined) funcArgs.push(aContext);
 				}
 				
+				//else level is unknown, treat args as console.log() style
 				else {
 					funcName = 'log';
-					funcArgs = arguments;
+					funcArgs = Array.prototype.slice.call(arguments); //convert arguments to an Array
+				}
+				
+				
+				//if we have a name
+				if (this.name) {
+					//prepend the name to the output
+					funcArgs.unshift('%c' + this.name.replace(/%/g, '%%'), 'color:GrayText', '');
+				}
+				
+				//else we don't have a name
+				else {
+					//if args are in "message, substitutions" style
+					if (funcArgs.length >= 2 && typeof funcArgs[0] == 'string') {
+						//escape % characters (substitution markers) in message
+						funcArgs[0] = funcArgs[0].replace(/%/g, '%%');
+					}
 				}
 				
 				console[funcName].apply(console, funcArgs);
@@ -67,19 +87,38 @@ define(
 				this.log('DEBUG', aMessage, aContext);
 			},
 			
-			constructor: function () {
-				this._sol_levels = {
-					EMERGENCY: 'error',
-					ALERT: 'error',
-					CRITICAL: 'error',
-					ERROR: 'error',
-					WARNING: 'warn',
-					NOTICE: 'info',
-					INFO: 'info',
-					DEBUG: 'debug',
-				};
+			/**
+			 * @constructor
+			 * @param {{}=} aOptions - Configuration options.
+			 * @param {string=} [aOptions.name=''] - The name/channel of the logger.
+			 */
+			constructor: function (aOptions) {
+				var options = StructUtils.assign({
+					name: '',
+				}, aOptions);
+				
+				/**
+				 * @public
+				 * @type {string}
+				 */
+				this.name = ''+(options.name||'');
 			},
 		});
+		
+		/**
+		 * @static
+		 * @private
+		 */
+		Logger._sol_levels = {
+			EMERGENCY: 'error',
+			ALERT: 'error',
+			CRITICAL: 'error',
+			ERROR: 'error',
+			WARNING: 'warn',
+			NOTICE: 'info',
+			INFO: 'info',
+			DEBUG: 'debug',
+		};
 		
 		return Logger;
 	}
