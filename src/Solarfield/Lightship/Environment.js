@@ -3,7 +3,7 @@ define(
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils',
 		'solarfield/lightship-js/src/Solarfield/Lightship/Options',
-		'solarfield/lightship-js/src/Solarfield/Lightship/Logger',
+		'solarfield/ok-kit-js/src/Solarfield/Ok/Logger',
 	],
 	function (ObjectUtils, StructUtils, Options, Logger) {
 		"use strict";
