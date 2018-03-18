@@ -26,6 +26,7 @@ define(
 		 * @param {Object} aOptions
 		 */
 		var Controller = function (aCode, aOptions) {
+			this._slc_logger = null;
 			this._slc_model = null;
 			this._slc_code = aCode+'';
 			this._slc_plugins = null;
@@ -363,9 +364,21 @@ define(
 		};
 		
 		Controller.prototype.handleException = function (aEx) {
-			Environment.getLogger().error(''+aEx, {
+			this.getLogger().error(''+aEx, {
 				exception: aEx
 			});
+		};
+		
+		/**
+		 * @public
+		 * @return {Logger}
+		 */
+		Controller.prototype.getLogger = function () {
+			if (!this._slc_logger) {
+				this._slc_logger = Environment.getLogger().cloneWithName('controller[' + this.getCode() + ']');
+			}
+			
+			return this._slc_logger;
 		};
 		
 		Controller.prototype.getMainConduit = function () {
@@ -391,7 +404,8 @@ define(
 			var i;
 			
 			for (i = 0; i < messages.length; i++) {
-				Environment.getLogger().log(messages[i].level, messages[i].message, messages[i].context);
+				messages[i].channel = 'server/stdout';
+				this.getLogger().logItem(messages[i]);
 			}
 		};
 		
