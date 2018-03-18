@@ -359,10 +359,18 @@ define(
 			this.resolveOptions();
 		};
 		
+		/**
+		 * Gets the controller's module code.
+		 * @return {string} The code.
+		 */
 		Controller.prototype.getCode = function () {
 			return this._slc_code;
 		};
 		
+		/**
+		 * Handles any uncaught Error that bubbles up through ::connect() or ::run().
+		 * @param {Error} aEx The error.
+		 */
 		Controller.prototype.handleException = function (aEx) {
 			this.getLogger().error(''+aEx, {
 				exception: aEx
@@ -381,6 +389,10 @@ define(
 			return this._slc_logger;
 		};
 		
+		/**
+		 * @public
+		 * @return {Conduit}
+		 */
 		Controller.prototype.getMainConduit = function () {
 			if (!this._slc_mainConduit) {
 				this._slc_mainConduit = new Conduit({
