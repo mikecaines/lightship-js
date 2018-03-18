@@ -14,41 +14,12 @@ define(
 		 */
 		var Logger = ObjectUtils.extend(null, {
 			log: function (aLevel, aMessage, aContext) {
-				var level = (''+aLevel).toUpperCase();
-				var funcName, funcArgs;
-				
-				
-				//if level is known
-				if (level in Logger._sol_levels) {
-					funcName = Logger._sol_levels[level];
-					
-					funcArgs = [aMessage];
-					if (aContext !== undefined) funcArgs.push(aContext);
-				}
-				
-				//else level is unknown, treat args as console.log() style
-				else {
-					funcName = 'log';
-					funcArgs = Array.prototype.slice.call(arguments); //convert arguments to an Array
-				}
-				
-				
-				//if we have a name
-				if (this.name) {
-					//prepend the name to the output
-					funcArgs.unshift('%c' + this.name.replace(/%/g, '%%'), 'color:GrayText', '');
-				}
-				
-				//else we don't have a name
-				else {
-					//if args are in "message, substitutions" style
-					if (funcArgs.length >= 2 && typeof funcArgs[0] == 'string') {
-						//escape % characters (substitution markers) in message
-						funcArgs[0] = funcArgs[0].replace(/%/g, '%%');
-					}
-				}
-				
-				console[funcName].apply(console, funcArgs);
+				this.logItem({
+					channel: this.name,
+					level: aLevel,
+					message: aMessage,
+					context: aContext,
+				});
 			},
 			
 			emergency: function (aMessage, aContext) {
@@ -85,6 +56,67 @@ define(
 			
 			debug: function (aMessage, aContext) {
 				this.log('DEBUG', aMessage, aContext);
+			},
+			
+			/**
+			 * Similar to log(), but accepts a message object.
+			 * If the item contains a channel property, it will override use of the logger's name, when displaying output.
+			 * @param {{}} aItem - The item to log.
+			 * @param {string} aItem.channel - A label for the source of the message.
+			 * @param {string} aItem.level - The severity level. e.g. INFO, WARNING, ERROR, etc.
+			 * @param {string} aItem.message - The text of the message.
+			 * @param {{}} aItem.context - Any additional context information.
+			 */
+			logItem: function (aItem) {
+				var channel = (''+(aItem.channel||''));
+				var level = (''+(aItem.level||'')).toUpperCase();
+				var message = (''+(aItem.message||''));
+				var context = aItem.context;
+				var funcName, funcArgs;
+				
+				
+				//if level is known
+				if (level in Logger._sol_levels) {
+					funcName = Logger._sol_levels[level];
+					
+					funcArgs = [message];
+					if (context !== undefined) funcArgs.push(context);
+				}
+				
+				//else level is unknown, treat args as console.log() style
+				else {
+					funcName = 'log';
+					funcArgs = Array.prototype.slice.call(arguments); //convert arguments to an Array
+				}
+				
+				
+				//if we have a channel
+				if (channel) {
+					//prepend the channel to the output
+					funcArgs.unshift('%c' + channel.replace(/%/g, '%%'), 'color:GrayText', '');
+				}
+				
+				//else we don't have a channel
+				else {
+					//if args are in "message, substitutions" style
+					if (funcArgs.length >= 2 && typeof funcArgs[0] == 'string') {
+						//escape % characters (substitution markers) in message
+						funcArgs[0] = funcArgs[0].replace(/%/g, '%%');
+					}
+				}
+				
+				console[funcName].apply(console, funcArgs);
+			},
+			
+			/**
+			 * Clones this logger, and gives the clone the specified name.
+			 * @param {string=} [aName=''] The name of the new logger.
+			 * @return {Solarfield.Lightship.Logger}
+			 */
+			cloneWithName: function (aName) {
+				return new this.constructor({
+					name: aName,
+				});
 			},
 			
 			/**
