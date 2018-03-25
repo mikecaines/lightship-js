@@ -80,6 +80,9 @@ define(
 		};
 		
 		/**
+		 * Will be called by ::bootstrap() if an uncaught error occurs before a Controller is created.
+		 * Normally this is only called when in an unrecoverable error state.
+		 * @see ::handleException().
 		 * @static
 		 * @param aEx
 		 */
@@ -368,13 +371,14 @@ define(
 		};
 		
 		/**
-		 * Handles any uncaught Error that bubbles up through ::connect() or ::run().
+		 * Will be called by ::bootstrap() if an uncaught error occurs after a Controller is created.
+		 * Normally this is only called when ::connect() or ::run() fails.
+		 * You can override this method, and attempt to boot another Controller for recovery purposes, etc.
+		 * @see ::bail().
 		 * @param {Error} aEx The error.
 		 */
 		Controller.prototype.handleException = function (aEx) {
-			this.getLogger().error(''+aEx, {
-				exception: aEx
-			});
+			this.constructor.bail(aEx);
 		};
 		
 		/**
