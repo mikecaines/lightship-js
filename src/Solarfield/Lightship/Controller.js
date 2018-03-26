@@ -55,7 +55,6 @@ define(
 					controller.connect()
 					.then(function () {
 						controller.run();
-						return controller;
 					})
 					.catch(function (e) {
 						controller.handleException(e);
