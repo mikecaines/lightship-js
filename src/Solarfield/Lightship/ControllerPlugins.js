@@ -14,7 +14,7 @@ define(
 			this._slcp_items = {};
 		};
 		
-		ControllerPlugins.prototype.register = function (aComponentCode, aOptions) {
+		ControllerPlugins.prototype.register = function (aComponentCode) {
 			var plugin, component;
 			
 			if (this._slcp_items[aComponentCode]) throw new Error(
