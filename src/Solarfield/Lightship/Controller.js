@@ -108,7 +108,7 @@ define(
 		 * @returns {Solarfield.Lightship.ComponentResolver}
 		 */
 		Controller.createComponentResolver = function () {
-			return new ComponentResolver(SystemJS);
+			return new ComponentResolver();
 		};
 		
 		/**
