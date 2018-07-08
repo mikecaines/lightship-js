@@ -30,7 +30,9 @@ define(
 						modulePath += '/' + aPluginCode;
 					}
 					
-					modulePath += '/' + this.generateClassName(link, aClassNamePart, aViewTypeCode, aPluginCode);
+					modulePath += '/';
+					if (aViewTypeCode) modulePath += aViewTypeCode;
+					modulePath += aClassNamePart;
 					
 					modulePath = System.normalizeSync(modulePath);
 					
@@ -44,14 +46,6 @@ define(
 				}
 				
 				return component;
-			},
-			
-			generateClassName: function (aLink, aClassNamePart, aViewTypeCode, aPluginCode) {
-				var className = '';
-				
-				className += aClassNamePart;
-				
-				return className;
 			},
 		});
 		
