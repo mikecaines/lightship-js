@@ -34,6 +34,7 @@ define(
 					if (aViewTypeCode) modulePath += aViewTypeCode;
 					modulePath += aClassNamePart;
 					
+					//TOOD: System should be passed to this instance, not referenced globally
 					modulePath = System.normalizeSync(modulePath);
 					
 					if (System.registry.has(modulePath)) {
