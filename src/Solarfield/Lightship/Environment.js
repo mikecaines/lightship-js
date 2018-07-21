@@ -4,8 +4,9 @@ define(
 		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils',
 		'solarfield/lightship-js/src/Solarfield/Lightship/Options',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/Logger',
+		'solarfield/lightship-js/src/Solarfield/Lightship/ComponentChain',
 	],
-	function (ObjectUtils, StructUtils, Options, Logger) {
+	function (ObjectUtils, StructUtils, Options, Logger, ComponentChain) {
 		"use strict";
 
 		/**
@@ -17,16 +18,37 @@ define(
 			throw Error("Class is abstract.");
 		};
 		
-		/** @static */ Environment._sle_baseChain = [];
+		/** @var ComponentChain @static */ Environment._sle_baseChain = null;
 		/** @static */ Environment._sle_vars = null;
 		/** @static */ Environment._sle_logger = null;
 		
 		/**
 		 * @static
-		 * @return {ChainLink[]}
+		 * @return {ComponentChain}
 		 */
-		Environment.getBaseChain = function () {
-			return Environment._sle_baseChain.slice();
+		Environment.createComponentChain = function () {
+			var chain = new ComponentChain();
+			
+			chain.insertAfter(null, {
+				id: 'solarfield/lightship-js',
+				path: 'solarfield/lightship-js/src/Solarfield/Lightship',
+			});
+			
+			chain.insertAfter(null, {
+				id: 'app',
+				path: 'app/App',
+			});
+			
+			return chain;
+		};
+		
+		/**
+		 * @static
+		 * @return {ComponentChain}
+		 */
+		Environment.getComponentChain = function () {
+			if (!Environment._sle_baseChain) Environment._sle_baseChain = this.createComponentChain();
+			return Environment._sle_baseChain;
 		};
 		
 		/**
@@ -71,18 +93,6 @@ define(
 			if (!self.App) self.App = {};
 			
 			self.App.DEBUG = options.debug == true;
-			
-			//prepend lightship-js (it should always be low-level, even if init() is called late)
-			Environment._sle_baseChain.unshift({
-				id: 'solarfield/lightship-js',
-				path: 'solarfield/lightship-js/src/Solarfield/Lightship',
-			});
-			
-			//append app
-			Environment._sle_baseChain.push({
-				id: 'app',
-				path: 'app/App',
-			});
 			
 			var vars = this.getVars();
 			Object.keys(options.vars).forEach(function (k) {

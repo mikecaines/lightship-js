@@ -1,9 +1,8 @@
 define(
 	[
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
-		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils',
 	],
-	function (ObjectUtils, StructUtils) {
+	function (ObjectUtils) {
 		"use strict";
 
 		/**
@@ -11,22 +10,30 @@ define(
 		 * @class Solarfield.Lightship.ComponentResolver
 		 */
 		var ComponentResolver = ObjectUtils.extend(null, {
+			/**
+			 *
+			 * @param {ComponentChain} aChain
+			 * @param {string} aClassNamePart
+			 * @param {string|null} aViewTypeCode
+			 * @param {string|null} aPluginCode
+			 * @return {*}
+			 */
 			resolveComponent: function (aChain, aClassNamePart, aViewTypeCode, aPluginCode) {
-				var chain = aChain.slice().reverse();
+				// reverse the chain
+				var chain = [];
+				aChain.forEach(function (link) {chain.push(link)});
+				chain.reverse();
+				
 				var component = null;
 				var i, link, modulePath;
 				
 				for (i = 0; i < chain.length; i++) {
-					//TODO: should be defaulted elsewhere
-					link = StructUtils.assign({
-						path: '',
-						pluginsSubPath: '/Plugins'
-					}, chain[i]);
+					link = chain[i];
 					
 					modulePath = link.path;
 					
 					if (aPluginCode) {
-						modulePath += link.pluginsSubPath;
+						modulePath += link.pluginsPath;
 						modulePath += '/' + aPluginCode;
 					}
 					
@@ -34,7 +41,7 @@ define(
 					if (aViewTypeCode) modulePath += aViewTypeCode;
 					modulePath += aClassNamePart;
 					
-					//TOOD: System should be passed to this instance, not referenced globally
+					//TODO: System should be passed to this instance, not referenced globally
 					modulePath = System.normalizeSync(modulePath);
 					
 					if (System.registry.has(modulePath)) {

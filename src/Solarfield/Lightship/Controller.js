@@ -113,14 +113,14 @@ define(
 		
 		/**
 		 * Gets the MVC chain for the specified module code.
-		 * @returns {object|null}
+		 * @returns {ComponentChain}
 		 * @static
 		 */
-		Controller.getChain = function (aModuleCode) {
-			var chain = Environment.getBaseChain().slice();
+		Controller.getComponentChain = function (aModuleCode) {
+			var chain = Environment.getComponentChain().clone();
 			
 			if (aModuleCode != null) {
-				chain.push({
+				chain.insertAfter(null, {
 					id: 'module',
 					path: 'app/App/Modules/' + aModuleCode,
 				});
@@ -138,7 +138,7 @@ define(
 		 */
 		Controller.fromCode = function (aCode, aOptions) {
 			var component = this.getComponentResolver().resolveComponent(
-				this.getChain(aCode),
+				this.getComponentChain(aCode),
 				'Controller'
 			);
 			
