@@ -386,7 +386,7 @@ define(
 		 */
 		Controller.prototype.getLogger = function () {
 			if (!this._slc_logger) {
-				this._slc_logger = Environment.getLogger().cloneWithName('controller[' + this.getCode() + ']');
+				this._slc_logger = Environment.getLogger().withName('controller[' + this.getCode() + ']');
 			}
 			
 			return this._slc_logger;
