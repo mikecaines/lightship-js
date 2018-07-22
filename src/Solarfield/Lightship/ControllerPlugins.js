@@ -67,6 +67,16 @@ define(
 			return plugin;
 		};
 		
+		ControllerPlugins.prototype.expectByClass = function (aClass) {
+			var plugin = this.getByClass(aClass);
+			
+			if (!plugin) throw new Error(
+				"Expected plugin of type '" + aClass + "'."
+			);
+			
+			return plugin;
+		};
+		
 		return ControllerPlugins;
 	}
 );
