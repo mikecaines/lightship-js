@@ -1,6 +1,5 @@
 define(
 	[
-		'app/App/Environment',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/StringUtils',
 		'solarfield/lightship-js/src/Solarfield/Lightship/ComponentResolver',
@@ -15,17 +14,20 @@ define(
 		'solarfield/ok-kit-js/src/Solarfield/Ok/HttpLoaderResult',
 	],
 	function (
-		Environment, ObjectUtils, StringUtils, ComponentResolver, ControllerPlugins, EvtTarget, Model, Options,
+		ObjectUtils, StringUtils, ComponentResolver, ControllerPlugins, EvtTarget, Model, Options,
 		StructUtils, ExtendableEventManager, ExtendableEvent, Conduit, HttpLoaderResult
 	) {
 		"use strict";
 		
 		/**
 		 * @class Solarfield.Lightship.Controller
+		 * @param {Environment} aEnvironment
 		 * @param {String} aCode
-		 * @param {Object} aOptions
+		 * @param {Context} aContext
+		 * @param {Object=} aOptions
 		 */
-		var Controller = function (aCode, aOptions) {
+		var Controller = function (aEnvironment, aCode, aContext, aOptions) {
+			this._slc_environment = aEnvironment;
 			this._slc_logger = null;
 			this._slc_model = null;
 			this._slc_code = aCode+'';
@@ -42,12 +44,38 @@ define(
 		};
 		
 		/**
+		 * Creates an instance of the appropriate module class.
+		 * @param {Environment} aEnvironment
+		 * @param {Context} aContext
+		 * @returns {Solarfield.Lightship.Controller}
 		 * @static
-		 * @param aOptions
 		 */
-		Controller.bootstrap = function (aOptions) {
+		Controller.fromContext = function (aEnvironment, aContext) {
+			var moduleCode = aContext.getRoute().getModuleCode();
+			var options = aContext.getRoute().getControllerOptions();
+			
+			var component = (new ComponentResolver()).resolveComponent(
+				aEnvironment.getComponentChain(moduleCode),
+				'Controller'
+			);
+			
+			if (!component) {
+				throw new Error(
+					"Could not resolve Controller component for module '" + moduleCode + "'."
+				);
+			}
+			
+			return new component.classObject(aEnvironment, moduleCode, aContext, options);
+		};
+		
+		/**
+		 * @static
+		 * @param {Environment} aEnvironment
+		 * @param {Context} aContext
+		 */
+		Controller.bootstrap = function (aEnvironment, aContext) {
 			try {
-				var controller = this.boot(aOptions['bootInfo']);
+				var controller = this.boot(aEnvironment, aContext);
 				
 				if (controller) {
 					self.App.controller = controller;
@@ -63,17 +91,18 @@ define(
 			}
 			
 			catch (e) {
-				this.bail(e);
+				this.bail(aEnvironment, e);
 			}
 		};
 		
 		/**
 		 * @static
-		 * @param aInfo
-		 * @return {Solarfield.Lightship.Controller}
+		 * @param {Environment} aEnvironment
+		 * @param {Context} aContext
+		 * @return {Controller}
 		 */
-		Controller.boot = function (aInfo) {
-			var controller = this.fromCode(aInfo.moduleCode, aInfo.controllerOptions);
+		Controller.boot = function (aEnvironment, aContext) {
+			var controller = this.fromContext(aEnvironment, aContext);
 			controller.init();
 			return controller;
 		};
@@ -83,10 +112,11 @@ define(
 		 * Normally this is only called when in an unrecoverable error state.
 		 * @see ::handleException().
 		 * @static
-		 * @param aEx
+		 * @param {Environment} aEnvironment
+		 * @param {Error} aEx
 		 */
-		Controller.bail = function (aEx) {
-			Environment.getLogger().error('Bailed.', {
+		Controller.bail = function (aEnvironment, aEx) {
+			aEnvironment.getLogger().error('Bailed.', {
 				exception: aEx
 			});
 		};
@@ -95,60 +125,14 @@ define(
 		 * @static
 		 * @returns {Solarfield.Lightship.ComponentResolver}
 		 */
-		Controller.getComponentResolver = function () {
+		Controller.prototype.getComponentResolver = function () {
 			if (!this._slc_componentResolver) {
-				this._slc_componentResolver = this.createComponentResolver();
-			}
-			
-			return this._slc_componentResolver;
-		};
-		
-		/**
-		 * @static
-		 * @returns {Solarfield.Lightship.ComponentResolver}
-		 */
-		Controller.createComponentResolver = function () {
-			return new ComponentResolver();
-		};
-		
-		/**
-		 * Gets the MVC chain for the specified module code.
-		 * @returns {ComponentChain}
-		 * @static
-		 */
-		Controller.getComponentChain = function (aModuleCode) {
-			var chain = Environment.getComponentChain().clone();
-			
-			if (aModuleCode != null) {
-				chain.insertAfter(null, {
-					id: 'module',
-					path: 'app/App/Modules/' + aModuleCode,
+				this._slc_componentResolver = new ComponentResolver({
+					logger: this.getLogger().withName(this.getLogger().name + '/componentResolver'),
 				});
 			}
 			
-			return chain;
-		};
-		
-		/**
-		 * Creates an instance of the appropriate module class.
-		 * @param {String} aCode
-		 * @param {Object=} aOptions
-		 * @returns {Solarfield.Lightship.Controller}
-		 * @static
-		 */
-		Controller.fromCode = function (aCode, aOptions) {
-			var component = this.getComponentResolver().resolveComponent(
-				this.getComponentChain(aCode),
-				'Controller'
-			);
-			
-			if (!component) {
-				throw new Error(
-					"Could not resolve Controller component for module '" + aCode + "'."
-				);
-			}
-			
-			return new component.classObject(aCode, aOptions);
+			return this._slc_componentResolver;
 		};
 		
 		/**
@@ -377,7 +361,7 @@ define(
 		 * @param {Error} aEx The error.
 		 */
 		Controller.prototype.handleException = function (aEx) {
-			this.constructor.bail(aEx);
+			this.constructor.bail(this.getEnvironment(), aEx);
 		};
 		
 		/**
@@ -386,7 +370,7 @@ define(
 		 */
 		Controller.prototype.getLogger = function () {
 			if (!this._slc_logger) {
-				this._slc_logger = Environment.getLogger().withName('controller[' + this.getCode() + ']');
+				this._slc_logger = this.getEnvironment().getLogger().withName('controller[' + this.getCode() + ']');
 			}
 			
 			return this._slc_logger;
@@ -422,6 +406,10 @@ define(
 				messages[i].channel = 'server/stdout';
 				this.getLogger().logItem(messages[i]);
 			}
+		};
+		
+		Controller.prototype.getEnvironment = function () {
+			return this._slc_environment;
 		};
 		
 		return Controller;

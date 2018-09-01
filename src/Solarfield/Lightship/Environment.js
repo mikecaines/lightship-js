@@ -10,95 +10,101 @@ define(
 		"use strict";
 
 		/**
-		 * @class Solarfield.Lightship.Environment
-		 * @abstract
-		 * @constructor
+		 * @class Environment
 		 */
-		var Environment = function () {
-			throw Error("Class is abstract.");
-		};
-		
-		/** @var ComponentChain @static */ Environment._sle_baseChain = null;
-		/** @static */ Environment._sle_vars = null;
-		/** @static */ Environment._sle_logger = null;
-		
-		/**
-		 * @static
-		 * @return {ComponentChain}
-		 */
-		Environment.createComponentChain = function () {
-			var chain = new ComponentChain();
-			
-			chain.insertAfter(null, {
-				id: 'solarfield/lightship-js',
-				path: 'solarfield/lightship-js/src/Solarfield/Lightship',
-			});
-			
-			chain.insertAfter(null, {
-				id: 'app',
-				path: 'app/App',
-			});
-			
-			return chain;
-		};
-		
-		/**
-		 * @static
-		 * @return {ComponentChain}
-		 */
-		Environment.getComponentChain = function () {
-			if (!Environment._sle_baseChain) Environment._sle_baseChain = this.createComponentChain();
-			return Environment._sle_baseChain;
-		};
-		
-		/**
-		 * @static
-		 * @return {Options}
-		 */
-		Environment.getVars = function () {
-			if (!Environment._sle_vars) {
-				Environment._sle_vars = new Options({
-					readOnly:true
+		var Environment = ObjectUtils.extend(null, {
+			/**
+			 * @return {ComponentChain}
+			 */
+			createComponentChain: function () {
+				var chain = new ComponentChain();
+				
+				chain.insertAfter(null, {
+					id: 'solarfield/lightship-js',
+					path: 'solarfield/lightship-js/src/Solarfield/Lightship',
 				});
-			}
+				
+				chain.insertAfter(null, {
+					id: 'app',
+					path: 'app/App',
+				});
+				
+				return chain;
+			},
 			
-			return Environment._sle_vars;
-		};
-		
-		/**
-		 * @static
-		 * @return {Logger}
-		 */
-		Environment.getLogger = function () {
-			if (!Environment._sle_logger) {
-				Environment._sle_logger = new Logger();
-			}
+			/**
+			 * @return {ComponentChain}
+			 */
+			getComponentChain: function (aModuleCode) {
+				if (!this._sle_baseChain) this._sle_baseChain = this.createComponentChain();
+				
+				var chain = this._sle_baseChain;
+				
+				if (aModuleCode) {
+					chain = chain.clone();
+					
+					chain.insertAfter(null, {
+						id: 'module',
+						path: 'app/App/Modules/' + aModuleCode,
+					});
+				}
+				
+				return chain;
+			},
 			
-			return Environment._sle_logger;
-		};
-		
-		/**
-		 * @static
-		 * @param {{
-		 *  debug: bool,
-		 *  vars: {}
-		 * }} aOptions
-		 */
-		Environment.init = function (aOptions) {
-			var options = StructUtils.assign({
-				debug: false,
-				vars: {}
-			}, aOptions);
+			/**
+			 * @return {Options}
+			 */
+			getVars: function () {
+				if (!this._sle_vars) {
+					this._sle_vars = new Options({
+						readOnly:true
+					});
+				}
+				
+				return this._sle_vars;
+			},
 			
-			if (!self.App) self.App = {};
+			/**
+			 * @return {Logger}
+			 */
+			getLogger: function () {
+				if (!this._sle_logger) {
+					this._sle_logger = new Logger();
+				}
+				
+				return this._sle_logger;
+			},
 			
-			self.App.DEBUG = options.debug == true;
+			/**
+			 * @static
+			 * @param {{
+			 *  debug: bool,
+			 *  vars: {}
+			 * }} aOptions
+			 */
+			init: function (aOptions) {
+				var options = StructUtils.assign({
+					debug: false,
+					vars: {}
+				}, aOptions);
+				
+				if (!self.App) self.App = {};
+				
+				self.App.DEBUG = options.debug == true;
+				
+				var vars = this.getVars();
+				Object.keys(options.vars).forEach(function (k) {
+					vars.set(k, options.vars[k]);
+				});
+			},
 			
-			var vars = this.getVars();
-			Object.keys(options.vars).forEach(function (k) {
-				vars.set(k, options.vars[k]);
-			});
-		};
+			constructor: function () {
+				this._sle_vars = null;
+				this._sle_logger = null;
+				this._sle_baseChain = null;
+			},
+		});
 		
 		return Environment;
 	}
