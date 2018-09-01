@@ -14,8 +14,8 @@ define(
 			 *
 			 * @param {ComponentChain} aChain
 			 * @param {string} aClassNamePart
-			 * @param {string|null} aViewTypeCode
-			 * @param {string|null} aPluginCode
+			 * @param {string=} aViewTypeCode
+			 * @param {string=} aPluginCode
 			 * @return {*}
 			 */
 			resolveComponent: function (aChain, aClassNamePart, aViewTypeCode, aPluginCode) {
