@@ -78,7 +78,7 @@ define(
 				var controller = this.boot(aEnvironment, aContext);
 				
 				if (controller) {
-					self.App.controller = controller;
+					if (self.App.DEBUG) self.App.controller = controller;
 					
 					controller.connect()
 					.then(function () {
