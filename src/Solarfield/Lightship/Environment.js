@@ -75,34 +75,30 @@ define(
 				
 				return this._sle_logger;
 			},
-			
+
 			/**
-			 * @static
-			 * @param {{
-			 *  debug: bool,
-			 *  vars: {}
-			 * }} aOptions
+			 * @param {{}} aOptions
+			 * @param {bool} aOptions.debug
+			 * @param {{}} aOptions.vars
 			 */
-			init: function (aOptions) {
+			constructor: function (aOptions) {
+				this._sle_vars = null;
+				this._sle_logger = null;
+				this._sle_baseChain = null;
+
 				var options = StructUtils.assign({
 					debug: false,
-					vars: {}
+					vars: {},
 				}, aOptions);
-				
+
 				if (!self.App) self.App = {};
-				
+
 				self.App.DEBUG = options.debug == true;
-				
+
 				var vars = this.getVars();
 				Object.keys(options.vars).forEach(function (k) {
 					vars.set(k, options.vars[k]);
 				});
-			},
-			
-			constructor: function () {
-				this._sle_vars = null;
-				this._sle_logger = null;
-				this._sle_baseChain = null;
 			},
 		});
 		

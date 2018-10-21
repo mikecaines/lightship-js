@@ -31,9 +31,8 @@ define(
 				var Context = r[2];
 				var Route = r[3];
 				
-				var environment = new Environment();
-				environment.init(aOptions.environmentOptions);
-				
+				var environment = new Environment(aOptions.environmentOptions);
+
 				var context = new Context(new Route({
 					moduleCode: aOptions.controllerOptions.bootInfo.moduleCode,
 					controllerOptions: aOptions.controllerOptions.bootInfo.controllerOptions,
