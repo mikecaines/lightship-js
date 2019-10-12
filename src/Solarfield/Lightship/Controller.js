@@ -234,21 +234,22 @@ define(
 		Controller.prototype.handleConduitData = function (aEvt) {
 			var bundles; //will hold the raw JSON data, which we will check for known bundles
 			var t;
-			
+
 			if (aEvt.data instanceof HttpLoaderResult) {
 				if (aEvt.data.response.constructor === Object) {
 					bundles = aEvt.data.response;
 				}
 			}
-			
+
 			else if (aEvt.data.constructor === Object) {
 				bundles = aEvt.data;
 			}
-			
-			
+
+
 			if (bundles) {
-				t = StructUtils.get(bundles, 'app.standardOutput.messages');
-				if (t) this.processStandardOutputMessages(t);
+				//TODO: move this to a LightshipBridge plugin
+				t = StructUtils.get(bundles, 'app.stdoutMessages');
+				if (t) this.getEnvironment().processStdoutMessages(t);
 			}
 		};
 		
@@ -390,22 +391,6 @@ define(
 			}
 			
 			return this._slc_mainConduit;
-		};
-		
-		/**
-		 * @param {Object[]} aMessages
-		 * @param {string} aMessages[].message - Text of the message.
-		 * @param {string} aMessages[].level - Uppercase name of a level defined by RFC 5424.
-		 * @param {Object} aMessages[].context - Additional context information.
-		 */
-		Controller.prototype.processStandardOutputMessages = function (aMessages) {
-			var messages = aMessages||[];
-			var i;
-			
-			for (i = 0; i < messages.length; i++) {
-				messages[i].channel = 'server/stdout';
-				this.getLogger().logItem(messages[i]);
-			}
 		};
 		
 		Controller.prototype.getEnvironment = function () {
