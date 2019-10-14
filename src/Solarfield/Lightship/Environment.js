@@ -14,6 +14,13 @@ define(
 		 */
 		var Environment = ObjectUtils.extend(null, {
 			/**
+			 * @return {boolean}
+			 */
+			isDevModeEnabled: function () {
+				return this._sle_devModeEnabled;
+			},
+
+			/**
 			 * @return {ComponentChain}
 			 */
 			createComponentChain: function () {
@@ -104,13 +111,13 @@ define(
 				this._sle_baseChain = null;
 
 				var options = StructUtils.assign({
-					debug: false,
+					devModeEnabled: false,
 					vars: {},
 				}, aOptions);
 
 				if (!self.App) self.App = {};
 
-				self.App.DEBUG = options.debug == true;
+				this._sle_devModeEnabled = options.devModeEnabled === true;
 
 				var vars = this.getVars();
 				Object.keys(options.vars).forEach(function (k) {
