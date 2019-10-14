@@ -67,46 +67,34 @@ define(
 			
 			return new component.classObject(aEnvironment, moduleCode, aContext, options);
 		};
-		
+
 		/**
 		 * @static
 		 * @param {Environment} aEnvironment
 		 * @param {Context} aContext
+		 * @return {Promise}
 		 */
-		Controller.bootstrap = function (aEnvironment, aContext) {
+		Controller.boot = function (aEnvironment, aContext) {
 			try {
-				var controller = this.boot(aEnvironment, aContext);
-				
-				if (controller) {
+				var controller = this.fromContext(aEnvironment, aContext);
+			}
+			catch (e) {
+				return this.bail(aEnvironment, e);
+			}
+
+			return Promise.resolve(controller)
+				.then(function (controller) {
+					controller.init();
+
 					if (aEnvironment.isDevModeEnabled()) {
 						self.App.controller = controller;
 					}
-					
-					controller.connect()
-					.then(function () {
-						controller.run();
-					})
-					.catch(function (e) {
-						controller.handleException(e);
-					});
-				}
-			}
-			
-			catch (e) {
-				this.bail(aEnvironment, e);
-			}
-		};
-		
-		/**
-		 * @static
-		 * @param {Environment} aEnvironment
-		 * @param {Context} aContext
-		 * @return {Controller}
-		 */
-		Controller.boot = function (aEnvironment, aContext) {
-			var controller = this.fromContext(aEnvironment, aContext);
-			controller.init();
-			return controller;
+
+					return controller.run();
+				})
+				.catch(function (e) {
+					return this.handleException(e);
+				}.bind(this))
 		};
 		
 		/**
@@ -116,11 +104,14 @@ define(
 		 * @static
 		 * @param {Environment} aEnvironment
 		 * @param {Error} aEx
+		 * @return {Promise}
 		 */
 		Controller.bail = function (aEnvironment, aEx) {
 			aEnvironment.getLogger().error('Bailed.', {
 				exception: aEx
 			});
+
+			return Promise.resolve();
 		};
 		
 		/**
@@ -282,29 +273,7 @@ define(
 			
 			return this._slc_model;
 		};
-		
-		Controller.prototype.connect = function () {
-			var controller = this;
-			
-			return new Promise(function (resolve, reject) {
-				function handleDomReady() {
-					document.removeEventListener('DOMContentLoaded', handleDomReady);
-					
-					Promise.resolve(controller.hookup())
-					.then(function () {resolve()})
-					.catch(function (ex) {reject(ex)});
-				}
-				
-				if (self.document && ['interactive', 'complete'].includes(document.readyState)) {
-					handleDomReady();
-				}
-				
-				else {
-					document.addEventListener('DOMContentLoaded', handleDomReady);
-				}
-			});
-		};
-		
+
 		Controller.prototype.hookup = function () {
 			return Promise.resolve()
 			.then(function () {
@@ -324,9 +293,30 @@ define(
 				}.bind(this));
 			}.bind(this));
 		};
-		
+
+		/**
+		 * @return {Promise}
+		 */
 		Controller.prototype.run = function () {
-			this.doTask();
+			return new Promise(function (resolve, reject) {
+				var handleDomReady = function () {
+					document.removeEventListener('DOMContentLoaded', handleDomReady);
+
+					Promise.resolve(this.hookup())
+						.then(function () {resolve()})
+						.catch(function (ex) {reject(ex)});
+				}.bind(this);
+
+				if (self.document && ['interactive', 'complete'].includes(document.readyState)) {
+					handleDomReady();
+				}
+				else {
+					document.addEventListener('DOMContentLoaded', handleDomReady);
+				}
+			}.bind(this))
+				.then(function () {
+					this.doTask();
+				}.bind(this));
 		};
 		
 		Controller.prototype.doTask = function () {
@@ -358,13 +348,14 @@ define(
 		
 		/**
 		 * Will be called by ::bootstrap() if an uncaught error occurs after a Controller is created.
-		 * Normally this is only called when ::connect() or ::run() fails.
+		 * Normally this is only called when ::run() fails.
 		 * You can override this method, and attempt to boot another Controller for recovery purposes, etc.
 		 * @see ::bail().
 		 * @param {Error} aEx The error.
+		 * @return Promise
 		 */
 		Controller.prototype.handleException = function (aEx) {
-			this.constructor.bail(this.getEnvironment(), aEx);
+			return this.constructor.bail(this.getEnvironment(), aEx);
 		};
 		
 		/**
@@ -394,7 +385,10 @@ define(
 			
 			return this._slc_mainConduit;
 		};
-		
+
+		/**
+		 * @return {Environment}
+		 */
 		Controller.prototype.getEnvironment = function () {
 			return this._slc_environment;
 		};
