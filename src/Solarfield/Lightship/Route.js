@@ -22,7 +22,14 @@ define(
 			getControllerOptions: function () {
 				return this._slr_controllerOptions;
 			},
-			
+
+			/**
+			 * @return {{}}
+			 */
+			getModelOptions: function () {
+				return this._slr_modelOptions;
+			},
+
 			/**
 			 * @return {string}
 			 */
@@ -32,12 +39,14 @@ define(
 			
 			/**
 			 * @param {{}} aOptions
+			 * @param {{}} aOptions.modelOptions
 			 * @param {{}} aOptions.controllerOptions
 			 * @param {string} aOptions.moduleCode
 			 * @constructor
 			 */
 			constructor: function (aOptions) {
 				this._slr_moduleCode = aOptions.moduleCode;
+				this._slr_modelOptions = aOptions.modelOptions;
 				this._slr_controllerOptions = aOptions.controllerOptions;
 			}
 		});

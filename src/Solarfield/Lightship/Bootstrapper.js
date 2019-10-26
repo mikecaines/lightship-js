@@ -37,8 +37,9 @@ define(
 					environment.init();
 
 					var context = new Context(new Route({
-						moduleCode: aOptions.controllerOptions.bootInfo.moduleCode,
-						controllerOptions: aOptions.controllerOptions.bootInfo.controllerOptions,
+						moduleCode: aOptions.moduleCode,
+						modelOptions: aOptions.modelOptions,
+						controllerOptions: aOptions.controllerOptions,
 					}));
 
 					return environment.boot(context);

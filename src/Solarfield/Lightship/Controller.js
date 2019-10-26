@@ -38,9 +38,8 @@ define(
 			this._slc_componentResolver = null;
 			this._slc_queuedPlugins = StructUtils.get(aOptions, 'pluginRegistrations');
 			this._slc_queuedOptions = StructUtils.get(aOptions, 'options');
-			this._slc_queuedPendingData = StructUtils.get(aOptions, 'pendingData');
 			this._slc_mainConduit = null;
-			
+
 			this.handleConduitData = this.handleConduitData.bind(this);
 		};
 		
@@ -63,7 +62,7 @@ define(
 				"Could not resolve Model component for module '" + moduleCode + "'."
 			);
 			var model = new component.classObject(
-				aEnvironment, moduleCode, {}
+				aEnvironment, moduleCode, aContext.getRoute().getModelOptions()
 			);
 			model.init();
 
@@ -156,13 +155,7 @@ define(
 		 * @returns {Promise}
 		 */
 		Controller.prototype.onHookup = function (aEvt) {
-			return aEvt.waitUntil(Promise.resolve().then(function () {
-				var model = this.getModel();
-				
-				//store any pending data
-				model.set('app.pendingData', this._slc_queuedPendingData);
-				this._slc_queuedPendingData = null;
-			}.bind(this)));
+			return Promise.resolve();
 		};
 		
 		/**

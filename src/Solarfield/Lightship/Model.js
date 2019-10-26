@@ -2,8 +2,9 @@ define(
 	[
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/StructProxy',
+		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils',
 	],
-	function (ObjectUtils, StructProxy) {
+	function (ObjectUtils, StructProxy, StructUtils) {
 		"use strict";
 		
 		/**
@@ -63,6 +64,8 @@ define(
 						value: new StructProxy({}),
 					},
 				});
+
+				this.set('app.pendingData', StructUtils.get(aOptions, 'pendingData'));
 			}
 		});
 		
