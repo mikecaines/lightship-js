@@ -22,7 +22,6 @@ define(
 				
 				includes.unshift(
 					'app/App/Environment',
-					'app/App/Controller',
 					'solarfield/lightship-js/src/Solarfield/Lightship/Context',
 					'solarfield/lightship-js/src/Solarfield/Lightship/Route'
 				);
@@ -31,18 +30,18 @@ define(
 			})
 				.then(function (r) {
 					var Environment = r[0];
-					var Controller = r[1];
-					var Context = r[2];
-					var Route = r[3];
+					var Context = r[1];
+					var Route = r[2];
 
 					var environment = new Environment(aOptions.environmentOptions);
+					environment.init();
 
 					var context = new Context(new Route({
 						moduleCode: aOptions.controllerOptions.bootInfo.moduleCode,
 						controllerOptions: aOptions.controllerOptions.bootInfo.controllerOptions,
 					}));
 
-					return Controller.boot(environment, context);
+					return environment.boot(context);
 				})
 				.then(function () {
 					// erase any resolved value, as we expect none

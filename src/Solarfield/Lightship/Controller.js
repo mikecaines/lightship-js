@@ -23,13 +23,14 @@ define(
 		 * @class Solarfield.Lightship.Controller
 		 * @param {Environment} aEnvironment
 		 * @param {String} aCode
+		 * @param {Model} aModel
 		 * @param {Context} aContext
 		 * @param {Object=} aOptions
 		 */
-		var Controller = function (aEnvironment, aCode, aContext, aOptions) {
+		var Controller = function (aEnvironment, aCode, aModel, aContext, aOptions) {
 			this._slc_environment = aEnvironment;
 			this._slc_logger = null;
-			this._slc_model = null;
+			this._slc_model = aModel;
 			this._slc_code = aCode+'';
 			this._slc_plugins = null;
 			this._slc_eventTarget = new EvtTarget();
@@ -52,68 +53,35 @@ define(
 		 */
 		Controller.fromContext = function (aEnvironment, aContext) {
 			var moduleCode = aContext.getRoute().getModuleCode();
-			var options = aContext.getRoute().getControllerOptions();
-			
-			var component = (new ComponentResolver()).resolveComponent(
+			var component;
+
+			component = (new ComponentResolver()).resolveComponent(
+				aEnvironment.getComponentChain(moduleCode),
+				'Model'
+			);
+			if (!component) throw new Error(
+				"Could not resolve Model component for module '" + moduleCode + "'."
+			);
+			var model = new component.classObject(
+				aEnvironment, moduleCode, {}
+			);
+			model.init();
+
+			component = (new ComponentResolver()).resolveComponent(
 				aEnvironment.getComponentChain(moduleCode),
 				'Controller'
 			);
-			
-			if (!component) {
-				throw new Error(
-					"Could not resolve Controller component for module '" + moduleCode + "'."
-				);
-			}
-			
-			return new component.classObject(aEnvironment, moduleCode, aContext, options);
+			if (!component) throw new Error(
+				"Could not resolve Controller component for module '" + moduleCode + "'."
+			);
+			var controller = new component.classObject(
+				aEnvironment, moduleCode, model, aContext, aContext.getRoute().getControllerOptions()
+			);
+			controller.init();
+
+			return controller;
 		};
 
-		/**
-		 * @static
-		 * @param {Environment} aEnvironment
-		 * @param {Context} aContext
-		 * @return {Promise}
-		 */
-		Controller.boot = function (aEnvironment, aContext) {
-			try {
-				var controller = this.fromContext(aEnvironment, aContext);
-			}
-			catch (e) {
-				return this.bail(aEnvironment, e);
-			}
-
-			return Promise.resolve(controller)
-				.then(function (controller) {
-					controller.init();
-
-					if (aEnvironment.isDevModeEnabled()) {
-						self.App.controller = controller;
-					}
-
-					return controller.run();
-				})
-				.catch(function (e) {
-					return this.handleException(e);
-				}.bind(this))
-		};
-		
-		/**
-		 * Will be called by ::bootstrap() if an uncaught error occurs before a Controller is created.
-		 * Normally this is only called when in an unrecoverable error state.
-		 * @see ::handleException().
-		 * @static
-		 * @param {Environment} aEnvironment
-		 * @param {Error} aEx
-		 * @return {Promise}
-		 */
-		Controller.bail = function (aEnvironment, aEx) {
-			aEnvironment.getLogger().error('Bailed.', {
-				exception: aEx
-			});
-
-			return Promise.resolve();
-		};
-		
 		/**
 		 * @static
 		 * @returns {Solarfield.Lightship.ComponentResolver}
@@ -267,10 +235,6 @@ define(
 		};
 		
 		Controller.prototype.getModel = function () {
-			if (!this._slc_model) {
-				this._slc_model = new Model();
-			}
-			
 			return this._slc_model;
 		};
 
@@ -347,15 +311,14 @@ define(
 		};
 		
 		/**
-		 * Will be called by ::bootstrap() if an uncaught error occurs after a Controller is created.
+		 * Will be called if an uncaught error occurs after a Controller is created.
 		 * Normally this is only called when ::run() fails.
 		 * You can override this method, and attempt to boot another Controller for recovery purposes, etc.
-		 * @see ::bail().
 		 * @param {Error} aEx The error.
 		 * @return Promise
 		 */
 		Controller.prototype.handleException = function (aEx) {
-			return this.constructor.bail(this.getEnvironment(), aEx);
+			return this.getEnvironment().bail(aEx);
 		};
 		
 		/**
@@ -391,6 +354,14 @@ define(
 		 */
 		Controller.prototype.getEnvironment = function () {
 			return this._slc_environment;
+		};
+
+		/**
+		 * @param aContext
+		 * @return {Promise}
+		 */
+		Controller.prototype.boot = function (aContext) {
+			return this.run();
 		};
 		
 		return Controller;

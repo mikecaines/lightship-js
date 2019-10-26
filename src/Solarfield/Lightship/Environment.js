@@ -101,6 +101,54 @@ define(
 			},
 
 			/**
+			 * @static
+			 * @param {Context} aContext
+			 * @return {Promise}
+			 */
+			boot: function (aContext) {
+				return System.import('app/App/Controller')
+					.then(function (Controller) {
+						try {
+							var controller = Controller.fromContext(this, aContext);
+						}
+						catch (e) {
+							return this.bail(e);
+						}
+
+						return Promise.resolve(controller)
+							.then(function (controller) {
+								if (this.isDevModeEnabled()) {
+									self.App.controller = controller;
+								}
+
+								return controller.boot();
+							}.bind(this))
+							.catch(function (e) {
+								return controller.handleException(e);
+							})
+					}.bind(this))
+			},
+
+			/**
+			 * Will be called by ::bootstrap() if an uncaught error occurs before a Controller is created.
+			 * Normally this is only called when in an unrecoverable error state.
+			 * @see ::handleException().
+			 * @param {Error} aEx
+			 * @return {Promise}
+			 */
+			bail: function (aEx) {
+				this.getLogger().error('Bailed.', {
+					exception: aEx
+				});
+
+				return Promise.resolve();
+			},
+
+			init: function () {
+
+			},
+
+			/**
 			 * @param {{}} aOptions
 			 * @param {bool} aOptions.debug
 			 * @param {{}} aOptions.vars
