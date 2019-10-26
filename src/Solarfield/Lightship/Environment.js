@@ -5,14 +5,22 @@ define(
 		'solarfield/lightship-js/src/Solarfield/Lightship/Options',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/Logger',
 		'solarfield/lightship-js/src/Solarfield/Lightship/ComponentChain',
+		'solarfield/lightship-js/src/Solarfield/Lightship/EnvironmentPlugins',
 	],
-	function (ObjectUtils, StructUtils, Options, Logger, ComponentChain) {
+	function (ObjectUtils, StructUtils, Options, Logger, ComponentChain, EnvironmentPlugins) {
 		"use strict";
 
 		/**
 		 * @class Environment
 		 */
 		var Environment = ObjectUtils.extend(null, {
+			/**
+			 * @protected
+			 */
+			resolvePlugins: function () {
+
+			},
+
 			/**
 			 * @return {boolean}
 			 */
@@ -83,6 +91,11 @@ define(
 				return this._sle_logger;
 			},
 
+			getPlugins: function () {
+				if (!this._sle_plugins) this._sle_plugins = new EnvironmentPlugins(this);
+				return this._sle_plugins;
+			},
+
 			/**
 			 * @param {Object[]} aMessages
 			 * @param {string} aMessages[].message - Text of the message.
@@ -145,7 +158,7 @@ define(
 			},
 
 			init: function () {
-
+				this.resolvePlugins();
 			},
 
 			/**
