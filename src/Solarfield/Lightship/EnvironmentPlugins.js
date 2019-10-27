@@ -63,7 +63,7 @@ define(
 					plugin = this._slep_items[k].plugin;
 				}
 			}
-			_slcp_
+			
 			return plugin;
 		};
 		
