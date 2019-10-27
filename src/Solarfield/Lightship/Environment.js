@@ -187,9 +187,3 @@ define(
 		return Environment;
 	}
 );
-
-/**
- * @typedef {Object} ChainLink
- * @property {string} id - Unique identifier for this link. Usually a string in the form of "vendor/package".
- * @property {string} path - JS module path to directory containing components. e.g. "vendor/package/src/Foo/Bar"
- */
