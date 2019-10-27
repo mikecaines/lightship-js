@@ -2,9 +2,8 @@ define(
 	[
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/StructProxy',
-		'solarfield/ok-kit-js/src/Solarfield/Ok/StructUtils',
 	],
-	function (ObjectUtils, StructProxy, StructUtils) {
+	function (ObjectUtils, StructProxy) {
 		"use strict";
 		
 		/**
@@ -48,9 +47,13 @@ define(
 			/**
 			 * @param {Environment} aEnvironment
 			 * @param {string} aModuleCode
-			 * @param {{}} aOptions
+			 * @param {{}=} aOptions
+			 * @param {{}=} aOptions.data - Initial data to populate the model.
+			 * @constructor
 			 */
 			constructor: function (aEnvironment, aModuleCode, aOptions) {
+				var options = aOptions||{};
+
 				Object.defineProperties(this, {
 					_env: {
 						value: aEnvironment,
@@ -61,11 +64,9 @@ define(
 					},
 
 					_data: {
-						value: new StructProxy({}),
+						value: new StructProxy(options.data||{}),
 					},
 				});
-
-				this.set('app.pendingData', StructUtils.get(aOptions, 'pendingData'));
 			}
 		});
 		
