@@ -12,6 +12,7 @@ define(
 
 		/**
 		 * @class Environment
+		 * @namespace Solarfield.Lightship
 		 */
 		var Environment = ObjectUtils.extend(null, {
 			/**
@@ -22,14 +23,8 @@ define(
 			},
 
 			/**
-			 * @return {boolean}
-			 */
-			isDevModeEnabled: function () {
-				return this._sle_devModeEnabled;
-			},
-
-			/**
 			 * @return {ComponentChain}
+			 * @protected
 			 */
 			createComponentChain: function () {
 				return new ComponentChain([
@@ -62,6 +57,13 @@ define(
 				
 				return chain;
 			},
+
+			/**
+			 * @return {boolean}
+			 */
+			isDevModeEnabled: function () {
+				return this._sle_devModeEnabled;
+			},
 			
 			/**
 			 * @return {Options}
@@ -90,23 +92,6 @@ define(
 			getPlugins: function () {
 				if (!this._sle_plugins) this._sle_plugins = new EnvironmentPlugins(this);
 				return this._sle_plugins;
-			},
-
-			/**
-			 * @param {Object[]} aMessages
-			 * @param {string} aMessages[].message - Text of the message.
-			 * @param {string} aMessages[].level - Uppercase name of a level defined by RFC 5424.
-			 * @param {Object} aMessages[].context - Additional context information.
-			 */
-			processStdoutMessages: function (aMessages) {
-				//TODO: move this to a LightshipBridge plugin
-				var messages = aMessages||[];
-				var i;
-
-				for (i = 0; i < messages.length; i++) {
-					messages[i].channel = 'server/stdout';
-					this.getLogger().logItem(messages[i]);
-				}
 			},
 
 			/**
