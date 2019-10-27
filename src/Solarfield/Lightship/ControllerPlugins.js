@@ -23,7 +23,7 @@ define(
 			
 			plugin = null;
 			
-			component = this._slcp_controller.getComponentResolver().resolveComponent(
+			component = this._slcp_controller.getEnvironment().getComponentResolver().resolveComponent(
 				this._slcp_controller.getEnvironment().getComponentChain(this._slcp_controller.getCode()),
 				'ControllerPlugin',
 				null,

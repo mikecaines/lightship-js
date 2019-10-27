@@ -6,13 +6,16 @@ define(
 		'solarfield/ok-kit-js/src/Solarfield/Ok/Logger',
 		'solarfield/lightship-js/src/Solarfield/Lightship/ComponentChain',
 		'solarfield/lightship-js/src/Solarfield/Lightship/EnvironmentPlugins',
+		'solarfield/lightship-js/src/Solarfield/Lightship/ComponentResolver',
 	],
-	function (ObjectUtils, StructUtils, Options, Logger, ComponentChain, EnvironmentPlugins) {
+	function (
+		ObjectUtils, StructUtils, Options, Logger, ComponentChain, EnvironmentPlugins,
+		ComponentResolver
+	) {
 		"use strict";
 
 		/**
-		 * @class Environment
-		 * @namespace Solarfield.Lightship
+		 * @class Solarfield.Lightship.Environment
 		 */
 		var Environment = ObjectUtils.extend(null, {
 			/**
@@ -56,6 +59,19 @@ define(
 				}
 				
 				return chain;
+			},
+
+			/**
+			 * @returns {ComponentResolver}
+			 */
+			getComponentResolver: function () {
+				if (!this._sle_componentResolver) {
+					this._sle_componentResolver = new ComponentResolver({
+						logger: this.getLogger().withName(this.getLogger().name + '/componentResolver'),
+					});
+				}
+
+				return this._sle_componentResolver;
 			},
 
 			/**

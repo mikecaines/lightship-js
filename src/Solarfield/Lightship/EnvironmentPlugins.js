@@ -24,7 +24,7 @@ define(
 			plugin = null;
 			
 			component = this._slep_environment.getComponentResolver().resolveComponent(
-				this._slep_environment.getEnvironment().getComponentChain(this._slep_environment.getCode()),
+				this._slep_environment.getComponentChain(),
 				'EnvironmentPlugin',
 				null,
 				aComponentCode
@@ -63,7 +63,7 @@ define(
 					plugin = this._slep_items[k].plugin;
 				}
 			}
-			
+
 			return plugin;
 		};
 		

@@ -2,7 +2,6 @@ define(
 	[
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ObjectUtils',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/StringUtils',
-		'solarfield/lightship-js/src/Solarfield/Lightship/ComponentResolver',
 		'solarfield/lightship-js/src/Solarfield/Lightship/ControllerPlugins',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/EventTarget',
 		'solarfield/lightship-js/src/Solarfield/Lightship/Model',
@@ -14,7 +13,7 @@ define(
 		'solarfield/ok-kit-js/src/Solarfield/Ok/HttpLoaderResult',
 	],
 	function (
-		ObjectUtils, StringUtils, ComponentResolver, ControllerPlugins, EvtTarget, Model, Options,
+		ObjectUtils, StringUtils, ControllerPlugins, EvtTarget, Model, Options,
 		StructUtils, ExtendableEventManager, ExtendableEvent, Conduit, HttpLoaderResult
 	) {
 		"use strict";
@@ -35,7 +34,6 @@ define(
 			this._slc_plugins = null;
 			this._slc_eventTarget = new EvtTarget();
 			this._slc_options = null;
-			this._slc_componentResolver = null;
 			this._slc_queuedPlugins = StructUtils.get(aOptions, 'pluginRegistrations');
 			this._slc_queuedOptions = StructUtils.get(aOptions, 'options');
 			this._slc_mainConduit = null;
@@ -54,7 +52,8 @@ define(
 			var moduleCode = aContext.getRoute().getModuleCode();
 			var component;
 
-			component = (new ComponentResolver()).resolveComponent(
+			// create the model
+			component = aEnvironment.getComponentResolver().resolveComponent(
 				aEnvironment.getComponentChain(moduleCode),
 				'Model'
 			);
@@ -66,7 +65,8 @@ define(
 			);
 			model.init();
 
-			component = (new ComponentResolver()).resolveComponent(
+			// create the controller
+			component = aEnvironment.getComponentResolver().resolveComponent(
 				aEnvironment.getComponentChain(moduleCode),
 				'Controller'
 			);
@@ -81,20 +81,6 @@ define(
 			return controller;
 		};
 
-		/**
-		 * @static
-		 * @returns {Solarfield.Lightship.ComponentResolver}
-		 */
-		Controller.prototype.getComponentResolver = function () {
-			if (!this._slc_componentResolver) {
-				this._slc_componentResolver = new ComponentResolver({
-					logger: this.getLogger().withName(this.getLogger().name + '/componentResolver'),
-				});
-			}
-			
-			return this._slc_componentResolver;
-		};
-		
 		/**
 		 * @protected
 		 */
