@@ -23,25 +23,44 @@ define(
 				
 				return null;
 			},
-			
-			insertBefore: function(aId, aLink) {
+
+			withLinkInsertedBefore: function(aLink, aId) {
+				var chain = this.clone();
 				var link = aLink instanceof ComponentChainLink ? aLink : new ComponentChainLink(aLink);
-				this._socc_links.splice(this._getLinkIndex(), 0, link);
+				chain._socc_links.splice(chain._getLinkIndex(aId), 0, link);
+				return chain;
 			},
-			
-			insertAfter: function(aId, aLink) {
+
+			withLinkInsertedAfter: function(aLink, aId) {
+				var chain = this.clone();
 				var link = aLink instanceof ComponentChainLink ? aLink : new ComponentChainLink(aLink);
 				
 				if (aId === null) {
-					this._socc_links.push(link);
+					chain._socc_links.push(link);
 				}
 				else {
-					var index = this._getLinkIndex(aId);
-					if (index === null) this._socc_links.push(link);
-					else this._socc_links.splice(index, 0, link);
+					var index = chain._getLinkIndex(aId);
+					if (index === null) chain._socc_links.push(link);
+					else chain._socc_links.splice(index, 0, link);
 				}
+
+				return chain;
 			},
-			
+
+			withLinkPrepended: function (aLink) {
+				var chain = this.clone();
+				var link = aLink instanceof ComponentChainLink ? aLink : new ComponentChainLink(aLink);
+				chain._socc_links.unshift(link);
+				return chain;
+			},
+
+			withLinkAppended: function (aLink) {
+				var chain = this.clone();
+				var link = aLink instanceof ComponentChainLink ? aLink : new ComponentChainLink(aLink);
+				chain._socc_links.push(link);
+				return chain;
+			},
+
 			forEach: function (cb) {
 				this._socc_links.forEach(function (link, index) {
 					cb(link, index);
@@ -49,17 +68,20 @@ define(
 			},
 			
 			clone: function () {
-				var clone = new this.constructor();
-				
-				this.forEach(function (link) {
-					clone.insertAfter(null, link);
-				});
-				
-				return clone;
+				return new this.constructor(this._socc_links);
 			},
 			
-			constructor: function () {
+			constructor: function (aLinks) {
 				this._socc_links = [];
+
+				if (aLinks) {
+					for (var i = 0; i < aLinks.length; i++) {
+						this._socc_links.push(
+							aLinks[i] instanceof ComponentChainLink
+								? aLinks[i] : new ComponentChainLink(aLinks[i])
+						)
+					}
+				}
 			},
 		});
 		

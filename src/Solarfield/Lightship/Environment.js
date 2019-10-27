@@ -32,19 +32,17 @@ define(
 			 * @return {ComponentChain}
 			 */
 			createComponentChain: function () {
-				var chain = new ComponentChain();
-				
-				chain.insertAfter(null, {
-					id: 'solarfield/lightship-js',
-					path: 'solarfield/lightship-js/src/Solarfield/Lightship',
-				});
-				
-				chain.insertAfter(null, {
-					id: 'app',
-					path: 'app/App',
-				});
-				
-				return chain;
+				return new ComponentChain([
+					{
+						id: 'solarfield/lightship-js',
+						path: 'solarfield/lightship-js/src/Solarfield/Lightship',
+					},
+
+					{
+						id: 'app',
+						path: 'app/App',
+					}
+				]);
 			},
 			
 			/**
@@ -56,9 +54,7 @@ define(
 				var chain = this._sle_baseChain;
 				
 				if (aModuleCode) {
-					chain = chain.clone();
-					
-					chain.insertAfter(null, {
+					chain = chain.withLinkAppended({
 						id: 'module',
 						path: 'app/App/Modules/' + aModuleCode,
 					});
