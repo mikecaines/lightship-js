@@ -10,11 +10,10 @@ define(
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ExtendableEventManager',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/ExtendableEvent',
 		'solarfield/ok-kit-js/src/Solarfield/Ok/Conduit',
-		'solarfield/ok-kit-js/src/Solarfield/Ok/HttpLoaderResult',
 	],
 	function (
 		ObjectUtils, StringUtils, ControllerPlugins, EvtTarget, Model, Options,
-		StructUtils, ExtendableEventManager, ExtendableEvent, Conduit, HttpLoaderResult
+		StructUtils, ExtendableEventManager, ExtendableEvent, Conduit,
 	) {
 		"use strict";
 		
@@ -37,8 +36,6 @@ define(
 			this._slc_queuedPlugins = StructUtils.get(aOptions, 'pluginRegistrations');
 			this._slc_queuedOptions = StructUtils.get(aOptions, 'options');
 			this._slc_mainConduit = null;
-
-			this.handleConduitData = this.handleConduitData.bind(this);
 		};
 		
 		/**
@@ -149,50 +146,9 @@ define(
 		 * @param {Event} aEvt
 		 */
 		Controller.prototype.onDoTask = function (aEvt) {
-			//if there is pending data
-			if (this.getModel().get('app.pendingData')) {
-				//push it into the main conduit
-				this.getMainConduit().push(this.getModel().get('app.pendingData'))
-				
-				//if any error occurs, push the error onto the conduit as well (app can handle it, etc.)
-				.catch(function (e) {
-					this.getMainConduit().push(e);
-				}.bind(this))
-				
-				//finally
-				.then(function () {
-					//clear the pending data from the model
-					this.getModel().set('app.pendingData', null);
-				}.bind(this));
-			}
+
 		};
-		
-		/**
-		 * @protected
-		 * @param {ConduitDataEvent} aEvt
-		 */
-		Controller.prototype.handleConduitData = function (aEvt) {
-			var bundles; //will hold the raw JSON data, which we will check for known bundles
-			var t;
 
-			if (aEvt.data instanceof HttpLoaderResult) {
-				if (aEvt.data.response.constructor === Object) {
-					bundles = aEvt.data.response;
-				}
-			}
-
-			else if (aEvt.data.constructor === Object) {
-				bundles = aEvt.data;
-			}
-
-
-			if (bundles) {
-				//TODO: move this to a LightshipBridge plugin
-				t = StructUtils.get(bundles, 'app.stdoutMessages');
-				if (t) this.getEnvironment().processStdoutMessages(t);
-			}
-		};
-		
 		Controller.prototype.addEventListener = function (aEventType, aListener) {
 			this._slc_eventTarget.addEventListener(aEventType, aListener);
 		};
@@ -321,8 +277,6 @@ define(
 				this._slc_mainConduit = new Conduit({
 					name: 'app.main',
 				});
-				
-				this._slc_mainConduit.addEventListener('data', this.handleConduitData);
 			}
 			
 			return this._slc_mainConduit;
