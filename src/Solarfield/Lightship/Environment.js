@@ -19,10 +19,14 @@ define(
 			if (!Environment._sle_baseChain) {
 				Environment._sle_baseChain = BattenEnvironment.getBaseChain(this);
 				
-				Environment._sle_baseChain.splice(StructUtils.search(Environment._sle_baseChain, 'id', 'app'), 0, {
-					id: 'solarfield/lightship-js',
-					namespace: 'Solarfield.Lightship'
-				});
+				Environment._sle_baseChain.splice(
+					StructUtils.search(Environment._sle_baseChain, 'id', 'solarfield/batten-js') + 1,
+					0,
+					{
+						id: 'solarfield/lightship-js',
+						namespace: 'Solarfield.Lightship'
+					}
+				);
 			}
 			
 			return Environment._sle_baseChain.slice();
